@@ -1,0 +1,80 @@
+/* ============================================
+   shell.css
+   Barra de navegación entre las pantallas
+   del prototipo (sólo para demo, no para prod)
+   ============================================ */
+
+.proto-nav {
+    background: var(--color-heading);
+    color: var(--color-white);
+    padding: 10px var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-md);
+}
+
+.proto-nav-brand {
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-extrabold);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.proto-nav-brand .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-secondary);
+}
+
+.proto-nav-links {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.proto-nav-link {
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    color: rgba(255, 255, 255, 0.7);
+    transition: all var(--transition-base);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.proto-nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-white);
+}
+
+.proto-nav-link.active {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.proto-nav-link .num {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+}
+
+.proto-nav-info {
+    font-size: var(--font-size-xs);
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: var(--font-weight-semibold);
+}
+
+@media (max-width: 768px) {
+    .proto-nav-info { display: none; }
+}

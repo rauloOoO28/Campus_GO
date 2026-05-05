@@ -1,0 +1,323 @@
+/* ============================================
+   route.css
+   Estilos de la pantalla de cálculo de ruta
+   ============================================ */
+
+.route-layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: var(--space-lg);
+    height: calc(100vh - 130px);
+}
+
+/* ============================================
+   Panel lateral con info de ruta
+   ============================================ */
+.route-panel {
+    background: var(--color-white);
+    border-radius: var(--radius-xl);
+    border: 1.5px solid var(--color-border);
+    padding: var(--space-lg);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.route-from-to {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 8px;
+}
+
+.route-from-to::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 18px;
+    bottom: 18px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--color-primary), var(--color-secondary));
+}
+
+.route-point-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    position: relative;
+}
+
+.route-point-row::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    border: 3px solid var(--color-white);
+    box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.route-point-row.destination::before {
+    background: var(--color-secondary);
+    box-shadow: 0 0 0 2px var(--color-secondary);
+}
+
+.route-point-info { flex: 1; min-width: 0; }
+
+.route-point-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-extrabold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.route-point-name {
+    font-size: var(--font-size-small);
+    color: var(--color-heading);
+    font-weight: var(--font-weight-bold);
+}
+
+.route-swap-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--color-bg);
+    border: none;
+    color: var(--color-heading);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.route-swap-btn:hover {
+    background: var(--color-primary);
+    color: var(--color-white);
+    transform: rotate(180deg);
+}
+
+/* Stats */
+.route-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: var(--space-md);
+}
+
+.route-stat-card {
+    background: var(--color-bg);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    text-align: center;
+}
+
+.route-stat-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.route-stat-value {
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-heading);
+    line-height: 1;
+}
+
+.route-stat-label {
+    font-size: 10px;
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+/* Modos de transporte */
+.transport-modes {
+    display: flex;
+    gap: 6px;
+    margin-bottom: var(--space-md);
+}
+
+.transport-mode-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: var(--radius-md);
+    background: var(--color-white);
+    border: 1.5px solid var(--color-border);
+    color: var(--color-heading);
+    cursor: pointer;
+    font-family: var(--font-family);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: all var(--transition-base);
+}
+
+.transport-mode-btn i { font-size: 18px; }
+
+.transport-mode-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.transport-mode-btn.active {
+    background: var(--color-primary);
+    color: var(--color-white);
+    border-color: var(--color-primary);
+}
+
+/* Instrucciones paso a paso */
+.route-instructions-title {
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-heading);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.route-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.instruction-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    transition: background var(--transition-base);
+}
+
+.instruction-step:hover { background: var(--color-bg); }
+
+.step-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: var(--color-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-extrabold);
+    flex-shrink: 0;
+}
+
+.step-content { flex: 1; min-width: 0; }
+
+.step-text {
+    font-size: var(--font-size-small);
+    color: var(--color-heading);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: 2px;
+}
+
+.step-distance {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-bold);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.step-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+/* Action button */
+.route-action {
+    margin-top: auto;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+}
+
+/* ============================================
+   Mapa de la ruta
+   ============================================ */
+.route-map {
+    position: relative;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: 1.5px solid var(--color-border);
+    background: linear-gradient(135deg, #d4e8e3 0%, #c5dfd7 100%);
+}
+
+.route-map .map-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Línea de ruta animada */
+@keyframes dashMove {
+    to { stroke-dashoffset: -30; }
+}
+
+.route-line {
+    stroke: var(--color-primary);
+    stroke-width: 6;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.95;
+}
+
+.route-line-dash {
+    stroke: var(--color-white);
+    stroke-width: 2;
+    fill: none;
+    stroke-dasharray: 8, 10;
+    stroke-linecap: round;
+    animation: dashMove 1.5s linear infinite;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .route-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+
+    .route-map {
+        height: 400px;
+    }
+
+    .route-panel { max-height: none; }
+}

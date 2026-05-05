@@ -1,0 +1,310 @@
+/* ============================================
+   qr.css
+   Estilos del escáner QR
+   ============================================ */
+
+.qr-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: var(--space-lg);
+    align-items: start;
+}
+
+/* ============================================
+   Visor de cámara
+   ============================================ */
+.qr-viewer {
+    background: var(--color-heading);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 16 / 11;
+    box-shadow: var(--shadow-xl);
+}
+
+.qr-camera-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, #2a4148 0%, #0d1d23 100%);
+}
+
+.qr-camera-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+
+.qr-frame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px;
+    height: 320px;
+    border-radius: var(--radius-2xl);
+}
+
+.qr-corners::before, .qr-corners::after,
+.qr-corners > span::before, .qr-corners > span::after {
+    content: '';
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    border: 5px solid var(--color-secondary);
+}
+
+.qr-corners::before {
+    top: 0; left: 0;
+    border-right: none; border-bottom: none;
+    border-top-left-radius: 20px;
+}
+
+.qr-corners::after {
+    top: 0; right: 0;
+    border-left: none; border-bottom: none;
+    border-top-right-radius: 20px;
+}
+
+.qr-corners > span::before {
+    bottom: 0; left: 0;
+    border-right: none; border-top: none;
+    border-bottom-left-radius: 20px;
+}
+
+.qr-corners > span::after {
+    bottom: 0; right: 0;
+    border-left: none; border-top: none;
+    border-bottom-right-radius: 20px;
+}
+
+.qr-scanline {
+    position: absolute;
+    top: 10%;
+    left: 5%;
+    right: 5%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, var(--color-primary) 50%, transparent 100%);
+    box-shadow: 0 0 16px var(--color-primary);
+    animation: scanMove 2.5s infinite ease-in-out;
+}
+
+@keyframes scanMove {
+    0%, 100% { top: 10%; }
+    50% { top: 85%; }
+}
+
+.qr-overlay-text {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: var(--color-white);
+    z-index: 5;
+}
+
+.qr-overlay-title {
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-extrabold);
+    margin-bottom: 4px;
+}
+
+.qr-overlay-subtitle {
+    font-size: var(--font-size-small);
+    opacity: 0.8;
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Status indicator */
+.qr-status-badge {
+    position: absolute;
+    top: var(--space-md);
+    left: var(--space-md);
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    color: var(--color-white);
+    border-radius: var(--radius-pill);
+    padding: 6px 14px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-extrabold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 5;
+}
+
+.qr-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-success);
+    animation: pulseDot 1.5s infinite;
+}
+
+@keyframes pulseDot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* ============================================
+   Panel lateral del QR
+   ============================================ */
+.qr-info-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.qr-info-card {
+    background: var(--color-white);
+    border-radius: var(--radius-xl);
+    border: 1.5px solid var(--color-border);
+    padding: var(--space-lg);
+}
+
+.qr-info-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: var(--space-md);
+}
+
+.qr-info-card-title {
+    font-size: var(--font-size-body);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-heading);
+}
+
+.qr-info-card-text {
+    font-size: var(--font-size-small);
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Lista de pasos */
+.qr-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.qr-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.qr-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-extrabold);
+    flex-shrink: 0;
+}
+
+.qr-step-content { flex: 1; min-width: 0; }
+
+.qr-step-title {
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-heading);
+    margin-bottom: 2px;
+}
+
+.qr-step-desc {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.4;
+}
+
+/* QR de ejemplo */
+.qr-sample {
+    background: var(--color-bg);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    text-align: center;
+    margin-top: var(--space-md);
+}
+
+.qr-sample-image {
+    width: 100px;
+    height: 100px;
+    background: var(--color-white);
+    border-radius: var(--radius-sm);
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: var(--color-heading);
+    border: 2px solid var(--color-heading);
+}
+
+.qr-sample-text {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-bold);
+}
+
+/* Recientes escaneados */
+.qr-recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.qr-recent-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.qr-recent-item:hover {
+    background: var(--color-primary-soft);
+}
+
+.qr-recent-info { flex: 1; min-width: 0; }
+
+.qr-recent-name {
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-heading);
+}
+
+.qr-recent-time {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .qr-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .qr-frame { width: 240px; height: 240px; }
+    .qr-corners::before,
+    .qr-corners::after,
+    .qr-corners > span::before,
+    .qr-corners > span::after { width: 36px; height: 36px; }
+}

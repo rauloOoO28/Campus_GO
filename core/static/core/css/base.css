@@ -1,0 +1,155 @@
+/* ============================================
+   base.css
+   Variables del sistema, tipografía y resets
+   ============================================ */
+
+:root {
+    /* Colores primarios */
+    --color-primary: #0E9E8E;
+    --color-primary-hover: #0c8a7c;
+    --color-primary-soft: rgba(14, 158, 142, 0.1);
+
+    /* Colores secundarios */
+    --color-secondary: #E8721C;
+    --color-secondary-hover: #d56010;
+    --color-secondary-soft: rgba(232, 114, 28, 0.1);
+
+    /* Neutros */
+    --color-heading: #1a2e35;
+    --color-heading-soft: rgba(26, 46, 53, 0.08);
+    --color-white: #FFFFFF;
+    --color-bg: #F7F7F5;
+    --color-border: #E4E4E2;
+    --color-text-muted: #888;
+    --color-text-secondary: #555;
+
+    /* Estado */
+    --color-danger: #dc3545;
+    --color-success: #28a745;
+    --color-warning: #f5c518;
+    --color-info: #2563eb;
+
+    /* Tipografía */
+    --font-family: 'Manrope', system-ui, sans-serif;
+    --font-size-xs: 11px;
+    --font-size-small: 13px;
+    --font-size-body: 15px;
+    --font-size-h3: 18px;
+    --font-size-h2: 22px;
+    --font-size-h1: 28px;
+
+    --font-weight-regular: 400;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+
+    /* Espaciado */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+
+    /* Radios */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-2xl: 24px;
+    --radius-pill: 999px;
+
+    /* Sombras */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.06);
+    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.1);
+
+    /* Transiciones */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.2s ease;
+    --transition-slow: 0.3s ease;
+}
+
+/* ============================================
+   Reset
+   ============================================ */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--font-family);
+    background: var(--color-bg);
+    color: var(--color-heading);
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+input, textarea, select { font-family: inherit; }
+img { max-width: 100%; display: block; }
+
+/* ============================================
+   Tipografía base
+   ============================================ */
+.h1 {
+    font-size: var(--font-size-h1);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-heading);
+    line-height: 1.2;
+}
+
+.h2 {
+    font-size: var(--font-size-h2);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-heading);
+    line-height: 1.25;
+}
+
+.h3 {
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-heading);
+}
+
+.text-muted { color: var(--color-text-muted); }
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+
+.section-label {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-text-muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+/* ============================================
+   Container global
+   ============================================ */
+.container-app {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+}
+
+/* ============================================
+   Scrollbar
+   ============================================ */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }

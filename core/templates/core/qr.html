@@ -1,0 +1,185 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusGo · Escáner QR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="{% static 'core/css/base.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/components.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/layout.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/qr.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/shell.css' %}">
+</head>
+<body data-active="qr">
+
+<div data-mount="proto-nav"></div>
+
+<div class="app-shell">
+
+    <div data-mount="sidebar"></div>
+
+    <div class="main-wrapper">
+
+        <header class="topbar">
+            <button class="mobile-menu-toggle"><i class="bi bi-list"></i></button>
+            <div class="topbar-left">
+                <button class="btn-icon" onclick="history.back()"><i class="bi bi-arrow-left"></i></button>
+                <div>
+                    <div class="topbar-title">Escáner de códigos QR</div>
+                    <div class="topbar-subtitle">Ubícate al instante apuntando a un código del campus</div>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <button class="btn-icon" title="Linterna"><i class="bi bi-lightbulb-fill"></i></button>
+                <button class="btn-icon" title="Cambiar cámara"><i class="bi bi-arrow-repeat"></i></button>
+            </div>
+        </header>
+
+        <main class="page-content">
+
+            <div class="breadcrumbs">
+                <a href="campus.html">Campus</a>
+                <span class="separator"><i class="bi bi-chevron-right"></i></span>
+                <a href="map.html">UAM Azcapotzalco</a>
+                <span class="separator"><i class="bi bi-chevron-right"></i></span>
+                <span class="current">Escáner QR</span>
+            </div>
+
+            <div class="qr-layout">
+
+                <!-- Visor de cámara -->
+                <div class="qr-viewer">
+                    <div class="qr-camera-bg"></div>
+
+                    <div class="qr-status-badge">
+                        <span class="qr-status-dot"></span>
+                        Cámara activa
+                    </div>
+
+                    <div class="qr-frame">
+                        <div class="qr-corners"><span></span></div>
+                        <div class="qr-scanline"></div>
+                    </div>
+
+                    <div class="qr-overlay-text">
+                        <div class="qr-overlay-title">Apunta al código QR</div>
+                        <div class="qr-overlay-subtitle">Mantén el código dentro del recuadro hasta detectarlo</div>
+                    </div>
+                </div>
+
+                <!-- Panel lateral -->
+                <div class="qr-info-panel">
+
+                    <!-- Cómo funciona -->
+                    <div class="qr-info-card">
+                        <div class="qr-info-card-header">
+                            <div class="icon-box icon-box-lg"><i class="bi bi-qr-code"></i></div>
+                            <div>
+                                <div class="qr-info-card-title">¿Cómo funciona?</div>
+                                <div class="qr-step-desc">Sigue estos 3 pasos sencillos</div>
+                            </div>
+                        </div>
+
+                        <div class="qr-steps">
+                            <div class="qr-step">
+                                <div class="qr-step-num">1</div>
+                                <div class="qr-step-content">
+                                    <div class="qr-step-title">Localiza un código QR</div>
+                                    <div class="qr-step-desc">Los códigos están en entradas de edificios y puntos de interés del campus.</div>
+                                </div>
+                            </div>
+
+                            <div class="qr-step">
+                                <div class="qr-step-num">2</div>
+                                <div class="qr-step-content">
+                                    <div class="qr-step-title">Apunta tu cámara</div>
+                                    <div class="qr-step-desc">Centra el código dentro del recuadro naranja del escáner.</div>
+                                </div>
+                            </div>
+
+                            <div class="qr-step">
+                                <div class="qr-step-num">3</div>
+                                <div class="qr-step-content">
+                                    <div class="qr-step-title">Listo, ¡ya estás ubicado!</div>
+                                    <div class="qr-step-desc">El sistema te llevará al detalle de la ubicación detectada.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="qr-sample">
+                            <div class="qr-sample-image">
+                                <i class="bi bi-qr-code"></i>
+                            </div>
+                            <div class="qr-sample-text">Ejemplo de código QR del campus</div>
+                        </div>
+                    </div>
+
+                    <!-- Recientes -->
+                    <div class="qr-info-card">
+                        <div class="qr-info-card-header">
+                            <div class="icon-box icon-box-secondary"><i class="bi bi-clock-history"></i></div>
+                            <div>
+                                <div class="qr-info-card-title">Escaneos recientes</div>
+                                <div class="qr-step-desc">Últimos lugares detectados</div>
+                            </div>
+                        </div>
+
+                        <div class="qr-recent-list">
+                            <a class="qr-recent-item" href="detail.html">
+                                <div class="icon-box"><i class="bi bi-cpu-fill"></i></div>
+                                <div class="qr-recent-info">
+                                    <div class="qr-recent-name">Lab. Cómputo H-201</div>
+                                    <div class="qr-recent-time">Hoy · 9:32 AM</div>
+                                </div>
+                                <i class="bi bi-arrow-up-right text-primary"></i>
+                            </a>
+                            <a class="qr-recent-item" href="detail.html">
+                                <div class="icon-box icon-box-secondary"><i class="bi bi-book-fill"></i></div>
+                                <div class="qr-recent-info">
+                                    <div class="qr-recent-name">Biblioteca Central</div>
+                                    <div class="qr-recent-time">Ayer · 2:15 PM</div>
+                                </div>
+                                <i class="bi bi-arrow-up-right text-primary"></i>
+                            </a>
+                            <a class="qr-recent-item" href="detail.html">
+                                <div class="icon-box icon-box-purple"><i class="bi bi-cup-hot-fill"></i></div>
+                                <div class="qr-recent-info">
+                                    <div class="qr-recent-name">Cafetería Edif. C</div>
+                                    <div class="qr-recent-time">Lunes · 1:00 PM</div>
+                                </div>
+                                <i class="bi bi-arrow-up-right text-primary"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Alternativa -->
+                    <div class="qr-info-card">
+                        <div class="qr-info-card-header">
+                            <div class="icon-box icon-box-dark"><i class="bi bi-info-circle-fill"></i></div>
+                            <div>
+                                <div class="qr-info-card-title">¿Sin acceso a un QR?</div>
+                            </div>
+                        </div>
+                        <p class="qr-info-card-text" style="margin-bottom:14px;">
+                            Si no tienes un código QR cerca, puedes seleccionar tu campus manualmente y empezar a navegar.
+                        </p>
+                        <button class="btn-action-secondary" style="width:100%; justify-content:center;" onclick="window.location='campus.html'">
+                            <i class="bi bi-buildings"></i> Elegir campus manualmente
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script src="{% static 'core/js/shell.js' %}"></script>
+</body>
+</html>

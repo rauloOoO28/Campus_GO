@@ -1,0 +1,296 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusGo · Mapa del campus</title>
+
+<!-- Fuentes e iconos -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<!-- ========================================================
+     CSS modular: cargar SIEMPRE en este orden
+     ======================================================== -->
+<link rel="stylesheet" href="{% static 'core/css/base.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/components.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/layout.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/shell.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/map.css' %}">
+</head>
+
+<body data-active="map">
+
+<div data-mount="proto-nav"></div>
+
+<div class="app-shell">
+
+    <div data-mount="sidebar"></div>
+
+    <div class="main-wrapper">
+
+        <header class="topbar">
+            <button class="mobile-menu-toggle"><i class="bi bi-list"></i></button>
+            <div class="topbar-left">
+                <div>
+                    <div class="topbar-title">UAM Azcapotzalco</div>
+                    <div class="topbar-subtitle">Mapa interactivo · 240+ ubicaciones</div>
+                </div>
+            </div>
+            <div class="topbar-search">
+                <div class="search-bar">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Buscar aula, edificio, oficina, laboratorio...">
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <button class="btn-icon"><i class="bi bi-bell-fill"></i></button>
+                <a class="btn-action-primary" href="{% url 'core:qr' %}">
+                    <i class="bi bi-qr-code-scan"></i> Escanear QR
+                </a>
+            </div>
+        </header>
+
+        <main class="page-content">
+
+            <div class="breadcrumbs">
+                <a href="{% url 'core:campus' %}">Campus</a>
+                <span class="separator"><i class="bi bi-chevron-right"></i></span>
+                <span class="current">UAM Azcapotzalco · Mapa</span>
+            </div>
+
+            <!-- Stats rápidas -->
+            <div class="map-stats-row">
+                <div class="map-stat-card">
+                    <div class="icon-box"><i class="bi bi-mortarboard-fill"></i></div>
+                    <div>
+                        <div class="map-stat-card-value">86</div>
+                        <div class="map-stat-card-label">Aulas</div>
+                    </div>
+                </div>
+                <div class="map-stat-card">
+                    <div class="icon-box icon-box-secondary"><i class="bi bi-cpu-fill"></i></div>
+                    <div>
+                        <div class="map-stat-card-value">24</div>
+                        <div class="map-stat-card-label">Laboratorios</div>
+                    </div>
+                </div>
+                <div class="map-stat-card">
+                    <div class="icon-box icon-box-purple"><i class="bi bi-building-fill"></i></div>
+                    <div>
+                        <div class="map-stat-card-value">12</div>
+                        <div class="map-stat-card-label">Edificios</div>
+                    </div>
+                </div>
+                <div class="map-stat-card">
+                    <div class="icon-box icon-box-dark"><i class="bi bi-cup-hot-fill"></i></div>
+                    <div>
+                        <div class="map-stat-card-value">8</div>
+                        <div class="map-stat-card-label">Cafeterías</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layout principal del mapa -->
+            <div class="map-layout">
+
+                <!-- Panel lateral con resultados -->
+                <div class="map-sidebar-panel">
+                    <div class="map-panel-header">
+                        <div class="search-bar map-panel-search">
+                            <i class="bi bi-search"></i>
+                            <input type="text" placeholder="Filtrar ubicaciones...">
+                        </div>
+                        <div class="map-panel-categories">
+                            <span class="category-chip active"><i class="bi bi-grid-fill"></i> Todos</span>
+                            <span class="category-chip"><i class="bi bi-mortarboard-fill"></i> Aulas</span>
+                            <span class="category-chip"><i class="bi bi-cpu-fill"></i> Labs</span>
+                            <span class="category-chip"><i class="bi bi-cup-hot-fill"></i> Cafés</span>
+                            <span class="category-chip"><i class="bi bi-building"></i> Oficinas</span>
+                        </div>
+                    </div>
+
+                    <div class="map-panel-content">
+
+                        <a class="map-result-item" href="{% url 'core:detail' %}">
+                            <div class="icon-box"><i class="bi bi-cpu-fill"></i></div>
+                            <div class="map-result-info">
+                                <div class="map-result-name">Laboratorio de Cómputo H-201</div>
+                                <div class="map-result-meta">
+                                    <span>Edif. H · Piso 2</span>
+                                    <span class="map-result-distance">80 m</span>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-right" style="color: var(--color-text-muted);"></i>
+                        </a>
+
+                        <a class="map-result-item" href="{% url 'core:detail' %}">
+                            <div class="icon-box icon-box-secondary"><i class="bi bi-mortarboard-fill"></i></div>
+                            <div class="map-result-info">
+                                <div class="map-result-name">Aula H-105</div>
+                                <div class="map-result-meta">
+                                    <span>Edif. H · Piso 1</span>
+                                    <span class="map-result-distance">65 m</span>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-right" style="color: var(--color-text-muted);"></i>
+                        </a>
+
+                        <a class="map-result-item" href="{% url 'core:detail' %}">
+                            <div class="icon-box icon-box-purple"><i class="bi bi-book-fill"></i></div>
+                            <div class="map-result-info">
+                                <div class="map-result-name">Biblioteca Central</div>
+                                <div class="map-result-meta">
+                                    <span>Edif. L</span>
+                                    <span class="map-result-distance">120 m</span>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-right" style="color: var(--color-text-muted);"></i>
+                        </a>
+
+                        <a class="map-result-item" href="{% url 'core:detail' %}">
+                            <div class="icon-box icon-box-dark"><i class="bi bi-cup-hot-fill"></i></div>
+                            <div class="map-result-info">
+                                <div class="map-result-name">Cafetería Edif. C</div>
+                                <div class="map-result-meta">
+                                    <span>Edif. C · Planta baja</span>
+                                    <span class="map-result-distance">95 m</span>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-right" style="color: var(--color-text-muted);"></i>
+                        </a>
+
+                        <a class="map-result-item" href="{% url 'core:detail' %}">
+                            <div class="icon-box"><i class="bi bi-building-fill"></i></div>
+                            <div class="map-result-info">
+                                <div class="map-result-name">Oficina de Coordinación CBI</div>
+                                <div class="map-result-meta">
+                                    <span>Edif. A · Piso 3</span>
+                                    <span class="map-result-distance">160 m</span>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-right" style="color: var(--color-text-muted);"></i>
+                        </a>
+
+                        <a class="map-result-item" href="{% url 'core:detail' %}">
+                            <div class="icon-box icon-box-secondary"><i class="bi bi-mortarboard-fill"></i></div>
+                            <div class="map-result-info">
+                                <div class="map-result-name">Aula H-203</div>
+                                <div class="map-result-meta">
+                                    <span>Edif. H · Piso 2</span>
+                                    <span class="map-result-distance">85 m</span>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-right" style="color: var(--color-text-muted);"></i>
+                        </a>
+
+                        <a class="map-result-item" href="{% url 'core:detail' %}">
+                            <div class="icon-box icon-box-purple"><i class="bi bi-cpu-fill"></i></div>
+                            <div class="map-result-info">
+                                <div class="map-result-name">Lab. Redes y Telecomunicaciones</div>
+                                <div class="map-result-meta">
+                                    <span>Edif. T · Piso 1</span>
+                                    <span class="map-result-distance">200 m</span>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-right" style="color: var(--color-text-muted);"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <!-- Mapa principal -->
+                <div class="map-main">
+
+                    <svg class="map-svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+                        <rect width="800" height="600" fill="#d4e8e3"/>
+
+                        <!-- Áreas verdes -->
+                        <rect x="40" y="40" width="200" height="120" rx="8" fill="#a8d4c4" opacity="0.6"/>
+                        <rect x="560" y="440" width="180" height="120" rx="8" fill="#a8d4c4" opacity="0.6"/>
+                        <rect x="40" y="450" width="120" height="110" rx="8" fill="#a8d4c4" opacity="0.5"/>
+
+                        <!-- Calles principales -->
+                        <line x1="0" y1="200" x2="800" y2="200" stroke="#fff" stroke-width="18"/>
+                        <line x1="0" y1="400" x2="800" y2="400" stroke="#fff" stroke-width="18"/>
+                        <line x1="400" y1="0" x2="400" y2="600" stroke="#fff" stroke-width="18"/>
+                        <line x1="180" y1="0" x2="180" y2="600" stroke="#fff" stroke-width="10" opacity="0.7"/>
+                        <line x1="620" y1="0" x2="620" y2="600" stroke="#fff" stroke-width="10" opacity="0.7"/>
+                        <line x1="0" y1="300" x2="800" y2="300" stroke="#fff" stroke-width="6" opacity="0.6"/>
+                        <line x1="0" y1="500" x2="800" y2="500" stroke="#fff" stroke-width="6" opacity="0.6"/>
+
+                        <!-- Edificios -->
+                        <rect x="220" y="220" width="140" height="100" rx="4" fill="#1a2e35" opacity="0.85"/>
+                        <text x="290" y="275" fill="white" font-size="14" font-weight="bold" text-anchor="middle" font-family="Manrope">EDIF. H</text>
+
+                        <rect x="440" y="220" width="140" height="100" rx="4" fill="#1a2e35" opacity="0.7"/>
+                        <text x="510" y="275" fill="white" font-size="14" font-weight="bold" text-anchor="middle" font-family="Manrope">EDIF. L</text>
+
+                        <rect x="220" y="340" width="140" height="100" rx="4" fill="#1a2e35" opacity="0.8"/>
+                        <text x="290" y="395" fill="white" font-size="14" font-weight="bold" text-anchor="middle" font-family="Manrope">EDIF. T</text>
+
+                        <rect x="440" y="340" width="140" height="100" rx="4" fill="#1a2e35" opacity="0.75"/>
+                        <text x="510" y="395" fill="white" font-size="14" font-weight="bold" text-anchor="middle" font-family="Manrope">EDIF. A</text>
+
+                        <rect x="200" y="100" width="100" height="80" rx="4" fill="#1a2e35" opacity="0.7"/>
+                        <text x="250" y="145" fill="white" font-size="13" font-weight="bold" text-anchor="middle" font-family="Manrope">EDIF. C</text>
+
+                        <rect x="500" y="100" width="100" height="80" rx="4" fill="#1a2e35" opacity="0.65"/>
+                        <text x="550" y="145" fill="white" font-size="13" font-weight="bold" text-anchor="middle" font-family="Manrope">EDIF. F</text>
+                    </svg>
+
+                    <!-- Controles del mapa -->
+                    <div class="map-controls">
+                        <a class="map-control-btn qr" href="{% url 'core:qr' %}" title="Escanear QR">
+                            <i class="bi bi-qr-code-scan"></i>
+                        </a>
+                        <button class="map-control-btn" title="Acercar"><i class="bi bi-plus-lg"></i></button>
+                        <button class="map-control-btn" title="Alejar"><i class="bi bi-dash-lg"></i></button>
+                        <button class="map-control-btn" title="Mi ubicación"><i class="bi bi-cursor-fill"></i></button>
+                        <button class="map-control-btn" title="Capas"><i class="bi bi-layers-fill"></i></button>
+                    </div>
+
+                    <!-- Pins -->
+                    <div class="map-pin" style="left: 36%; top: 47%;">
+                        <div class="pin-bubble dark">Edif. H</div>
+                    </div>
+                    <div class="map-pin" style="left: 36%; top: 65%;" onclick="window.location='{% url 'core:detail' %}'">
+                        <div class="pin-bubble">
+                            <i class="bi bi-cpu-fill"></i> Lab. Cómputo
+                        </div>
+                    </div>
+                    <div class="map-pin" style="left: 64%; top: 47%;">
+                        <div class="pin-bubble secondary">
+                            <i class="bi bi-book-fill"></i> Biblioteca
+                        </div>
+                    </div>
+                    <div class="map-pin" style="left: 31%; top: 25%;">
+                        <div class="pin-bubble dark">Edif. C</div>
+                    </div>
+
+                    <!-- Marker usuario -->
+                    <div class="pin-marker-user" style="left: 50%; top: 80%;"></div>
+
+                    <!-- Mini info card -->
+                    <div class="map-info-card">
+                        <div class="icon-box"><i class="bi bi-cursor-fill"></i></div>
+                        <div class="map-info-content">
+                            <div class="map-info-name">Tu ubicación actual</div>
+                            <div class="map-info-meta">Entrada principal · Plaza central</div>
+                        </div>
+                        <button class="btn-icon" title="Centrar mapa"><i class="bi bi-arrows-fullscreen"></i></button>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script src="{% static 'core/js/shell.js' %}"></script>
+</body>
+</html>
