@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-<!-- AQUÍ ESTÁ LA MAGIA DE DJANGO PARA EL CSS -->
+
 <link rel="stylesheet" href="{% static 'core/css/base.css' %}">
 <link rel="stylesheet" href="{% static 'core/css/login.css' %}">
 
@@ -25,25 +25,6 @@ body {
 
 </head>
 <body>
-
-<!-- Barra de navegación del prototipo (solo demo) -->
-<nav class="proto-nav">
-    <div class="proto-nav-brand">
-        <span class="dot"></span>
-        CampusGo · Prototipo
-    </div>
-    <div class="proto-nav-links">
-        <!-- Reemplazamos los href estáticos por las URLs de Django -->
-        <a href="{% url 'core:login' %}" class="proto-nav-link active"><span class="num">0</span> Login</a>
-        <a href="{% url 'core:campus' %}" class="proto-nav-link"><span class="num">CU-01</span> Campus</a>
-        <a href="{% url 'core:map' %}" class="proto-nav-link"><span class="num">CU-02</span> Mapa</a>
-        <a href="#" class="proto-nav-link"><span class="num">CU-05</span> Ubicación</a> <!-- Rellena cuando crees la vista -->
-        <a href="#" class="proto-nav-link"><span class="num">CU-03</span> Ruta</a>
-        <a href="#" class="proto-nav-link"><span class="num">CU-04</span> QR</a>
-        <a href="{% url 'core:admin_panel' %}" class="proto-nav-link"><span class="num">CU-06</span> Admin</a>
-    </div>
-    <div class="proto-nav-info">v1.0 · Mockup</div>
-</nav>
 
 <div class="login-page">
 
@@ -93,7 +74,7 @@ body {
                     <label class="input-label">Correo institucional</label>
                     <div class="login-form-input-wrapper">
                         <i class="bi bi-envelope-fill"></i>
-                        <input type="email" class="input-base" placeholder="oscar@uam.mx">
+                        <input type="email" class="input-base" placeholder="correo@correo.com">
                     </div>
                 </div>
 
@@ -113,8 +94,8 @@ body {
                     <a href="#">¿Olvidaste tu contraseña?</a>
                 </div>
 
-                <!-- Cambiamos el onclick para que use la URL de Django -->
-                <button type="button" class="btn-login-submit" onclick="window.location='{% url 'core:campus' %}'">
+               
+                <button type="button" class="btn-login-submit" onclick="">
                     <i class="bi bi-box-arrow-in-right"></i>
                     Entrar a CampusGo
                 </button>
@@ -122,21 +103,18 @@ body {
 
             <div class="login-divider">O ENTRA SIN CUENTA</div>
 
-            <button class="btn-login-qr" onclick="window.location='#'">
+            <button class="btn-login-qr" onclick='window.location="#"'>
                 <i class="bi bi-qr-code-scan"></i>
                 Escanear código QR del campus
             </button>
 
             <p class="login-signup-text">
-                ¿Eres visitante? <a href="{% url 'core:campus' %}">Continuar como invitado</a>
+                ¿Eres visitante? <a href="{% url "core:campus" %}">Continuar como invitado</a>
             </p>
 
         </div>
     </div>
 </div>
-
-<!-- EL JAVASCRIPT TAMBIÉN DEBE USAR STATIC -->
-<!-- Asegúrate de tener esta carpeta y archivo creados en tu static -->
 <script src="{% static 'core/js/shell.js' %}"></script>
 </body>
 </html>

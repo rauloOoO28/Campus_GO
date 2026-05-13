@@ -82,28 +82,17 @@ const SIDEBAR_HTML = `
 `;
 
 const PROTO_NAV_HTML = `
-    <nav class="proto-nav">
-        <div class="proto-nav-brand">
-            <span class="dot"></span>
-            CampusGo · Prototipo
-        </div>
-        <div class="proto-nav-links">
-            <a href="${URLS.login}"  data-key="login"  class="proto-nav-link"><span class="num">0</span> Login</a>
-            <a href="${URLS.campus}" data-key="campus" class="proto-nav-link"><span class="num">CU-01</span> Campus</a>
-            <a href="${URLS.map}"    data-key="map"    class="proto-nav-link"><span class="num">CU-02</span> Mapa</a>
-            <a href="${URLS.detail}" data-key="detail" class="proto-nav-link"><span class="num">CU-05</span> Ubicación</a>
-            <a href="${URLS.route}"  data-key="route"  class="proto-nav-link"><span class="num">CU-03</span> Ruta</a>
-            <a href="${URLS.qr}"     data-key="qr"     class="proto-nav-link"><span class="num">CU-04</span> QR</a>
-            <a href="${URLS.admin}"  data-key="admin"  class="proto-nav-link"><span class="num">CU-06</span> Admin</a>
-        </div>
-        <div class="proto-nav-info">v1.0 · Mockup</div>
-    </nav>
+    <header class="app-header">
+        <button class="mobile-menu-toggle" type="button">☰</button>
+        <div class="header-logo">CampusGo</div>
+        <div class="header-right-spacer"></div>
+    </header>
 `;
 
 function injectShell() {
     const activeKey = document.body.dataset.active;
 
-    // Inyectar proto-nav
+    // Inyectar header principal en lugar de la barra antigua
     const navMount = document.querySelector('[data-mount="proto-nav"]');
     if (navMount) navMount.outerHTML = PROTO_NAV_HTML;
 
@@ -118,15 +107,15 @@ function injectShell() {
         });
     }
 
-    // Toggle del sidebar en mobile
+    // Toggle del sidebar
     const toggle = document.querySelector('.mobile-menu-toggle');
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.querySelector('.sidebar-overlay');
 
     if (toggle && sidebar) {
         toggle.addEventListener('click', () => {
-            sidebar.classList.add('open');
-            if (overlay) overlay.classList.add('show');
+            sidebar.classList.toggle('open');
+            if (overlay) overlay.classList.toggle('show');
         });
     }
 

@@ -302,6 +302,12 @@ body {
     transform: translateY(-2px);
 }
 
+@media (min-width: 885px) {
+    body[data-active="campus"] .page-header .btn-action-primary {
+        display: none !important;
+    }
+}
+
 .category-chip {
     padding: 8px 16px;
     border-radius: var(--radius-pill);
