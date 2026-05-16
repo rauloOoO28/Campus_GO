@@ -1,0 +1,216 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusGo · {{ ubicacion.nombre }}</title>
+ 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+ 
+<link rel="stylesheet" href="{% static 'core/css/base.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/components.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/layout.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/shell.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/detail.css' %}">
+</head>
+ 
+<body data-active="map">
+ 
+<div data-mount="proto-nav"></div>
+ 
+<div class="app-shell">
+ 
+    <div data-mount="sidebar"></div>
+ 
+    <div class="main-wrapper">
+ 
+        <header class="topbar">
+            <button class="mobile-menu-toggle"><i class="bi bi-list"></i></button>
+            <div class="topbar-left">
+                <a class="btn-icon" href="{% url 'core:map' %}"><i class="bi bi-arrow-left"></i></a>
+                <div>
+                    <div class="topbar-title">{{ ubicacion.nombre }}</div>
+                    <div class="topbar-subtitle">
+                        {% if desde_qr %}
+                            <i class="bi bi-qr-code-scan text-primary"></i> Ubicado por QR
+                        {% else %}
+                            {{ ubicacion.get_tipo_display }} · {{ ubicacion.campus.nombre }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <button class="btn-icon"><i class="bi bi-share-fill"></i></button>
+                <button class="btn-icon"><i class="bi bi-bookmark"></i></button>
+            </div>
+        </header>
+ 
+        <main class="page-content">
+ 
+            {% if desde_qr %}
+            <!-- Banner de confirmación de escaneo QR -->
+            <div style="background: linear-gradient(135deg, var(--color-primary), #0a7a6f);
+                        color: white; padding: 16px 20px; border-radius: 16px;
+                        margin-bottom: 24px; display: flex; align-items: center;
+                        gap: 14px;">
+                <i class="bi bi-check-circle-fill" style="font-size: 28px;"></i>
+                <div>
+                    <div style="font-weight: 800;">¡Te ubicamos correctamente!</div>
+                    <div style="font-size: 13px; opacity: 0.9; font-weight: 600;">
+                        Estás en <strong>{{ ubicacion.nombre }}</strong>.
+                        Ahora puedes navegar el campus desde aquí.
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+ 
+            <div class="breadcrumbs">
+                <a href="{% url 'core:campus' %}">Campus</a>
+                <span class="separator"><i class="bi bi-chevron-right"></i></span>
+                <a href="{% url 'core:map' %}">{{ ubicacion.campus.nombre }}</a>
+                <span class="separator"><i class="bi bi-chevron-right"></i></span>
+                <span class="current">{{ ubicacion.nombre }}</span>
+            </div>
+ 
+            <div class="detail-layout">
+ 
+                <div>
+                    <div class="detail-hero">
+                        <div class="detail-hero-buttons">
+                            <a class="hero-icon-btn" href="{% url 'core:map' %}?desde={{ ubicacion.codigo }}">
+                                <i class="bi bi-map-fill"></i>
+                            </a>
+                            <button class="hero-icon-btn"><i class="bi bi-share-fill"></i></button>
+                        </div>
+                        <div class="detail-hero-icon">
+                            {% if ubicacion.tipo == 'entrada' %}
+                                <i class="bi bi-door-open-fill"></i>
+                            {% elif ubicacion.tipo == 'aula' %}
+                                <i class="bi bi-mortarboard-fill"></i>
+                            {% elif ubicacion.tipo == 'laboratorio' %}
+                                <i class="bi bi-cpu-fill"></i>
+                            {% elif ubicacion.tipo == 'oficina' %}
+                                <i class="bi bi-building-fill"></i>
+                            {% else %}
+                                <i class="bi bi-geo-alt-fill"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+ 
+                    <div class="detail-main">
+                        <div class="detail-tags">
+                            <span class="tag">{{ ubicacion.get_tipo_display }}</span>
+                            {% if ubicacion.edificio %}
+                                <span class="tag tag-secondary">Edif. {{ ubicacion.edificio.codigo }}</span>
+                            {% endif %}
+                            {% if ubicacion.piso > 0 %}
+                                <span class="tag tag-dark">Piso {{ ubicacion.piso }}</span>
+                            {% endif %}
+                        </div>
+ 
+                        <h1 class="detail-name">{{ ubicacion.nombre }}</h1>
+                        <p class="detail-location">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            {{ ubicacion.campus.nombre }}
+                            {% if ubicacion.edificio %} · {{ ubicacion.edificio.nombre }}{% endif %}
+                        </p>
+ 
+                        <div class="detail-meta-row">
+                            <div class="meta-pill">
+                                <i class="bi bi-geo-alt-fill"></i>
+                                {{ ubicacion.latitud }}, {{ ubicacion.longitud }}
+                            </div>
+                            {% if ubicacion.capacidad %}
+                                <div class="meta-pill">
+                                    <i class="bi bi-people-fill"></i>
+                                    Cap. {{ ubicacion.capacidad }}
+                                </div>
+                            {% endif %}
+                            {% if ubicacion.horario %}
+                                <div class="meta-pill">
+                                    <i class="bi bi-clock-fill"></i>
+                                    {{ ubicacion.horario }}
+                                </div>
+                            {% endif %}
+                        </div>
+ 
+                        {% if ubicacion.descripcion %}
+                        <div class="detail-section">
+                            <div class="detail-section-title">
+                                <i class="bi bi-info-circle-fill"></i>
+                                Acerca de este lugar
+                            </div>
+                            <p class="detail-description">{{ ubicacion.descripcion }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+ 
+                <!-- Aside derecho con acciones -->
+                <aside class="detail-aside">
+ 
+                    <!-- 🌟 BOTÓN GRANDE "IR AL MAPA" -->
+                    <div class="action-card" style="background: linear-gradient(135deg, var(--color-primary), #0a7a6f);
+                                                    color: white; border: none;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
+                            <i class="bi bi-compass-fill" style="font-size: 28px;"></i>
+                            <div style="font-weight: 800; font-size: 16px;">¡Listo para explorar!</div>
+                        </div>
+                        <p style="font-size: 13px; opacity: 0.9; font-weight: 600; margin-bottom: 16px; line-height: 1.5;">
+                            Ya sabemos dónde estás. Continúa al mapa interactivo para ver
+                            edificios, aulas y servicios de {{ ubicacion.campus.nombre }}.
+                        </p>
+                        <a class="btn-primary-full"
+                           href="{% url 'core:map' %}?desde={{ ubicacion.codigo }}"
+                           style="background: white; color: var(--color-primary);">
+                            <i class="bi bi-map-fill"></i>
+                            Ir al mapa de {{ ubicacion.campus.nombre }}
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+ 
+                    <div class="action-card">
+                        <div class="action-card-title">
+                            <i class="bi bi-signpost-split-fill text-primary"></i>
+                            ¿A dónde necesitas llegar?
+                        </div>
+                        <p style="font-size: 13px; color: #666; font-weight: 600; margin-bottom: 16px;">
+                            Calcula una ruta desde aquí a cualquier lugar del campus.
+                        </p>
+                        <a class="btn-secondary-full" href="{% url 'core:route' %}?desde={{ ubicacion.codigo }}">
+                            <i class="bi bi-signpost-split-fill"></i>
+                            Calcular ruta
+                        </a>
+                    </div>
+ 
+                    {% if ubicacion.tiene_qr %}
+                    <div class="action-card">
+                        <div class="action-card-title">
+                            <i class="bi bi-qr-code text-primary"></i>
+                            Código QR
+                        </div>
+                        <div style="text-align: center; padding: 16px; background: var(--color-bg);
+                                    border-radius: 12px; margin-bottom: 12px;">
+                            <img src="{{ ubicacion.codigo_qr.imagen.url }}"
+                                 alt="QR de {{ ubicacion.nombre }}"
+                                 style="width: 180px; height: 180px;">
+                        </div>
+                        <p style="font-size: 12px; color: #888; font-weight: 600; text-align: center;">
+                            Escaneado <strong>{{ ubicacion.codigo_qr.escaneos }}</strong> veces
+                        </p>
+                    </div>
+                    {% endif %}
+                </aside>
+            </div>
+ 
+        </main>
+    </div>
+</div>
+ 
+<script src="{% static 'core/js/shell.js' %}"></script>
+</body>
+</html>

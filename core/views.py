@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from locations.models import Campus, Ubicacion
 
 # Vista principal (Inicio)
 def home(request):
@@ -19,7 +20,38 @@ def admin_view(request):
 
 # Vista de Campus
 def campus_view(request):
-    return render(request, 'core/campus.html')
+    """
+    Vista de selección de campus.
+    ESCOM se carga real desde la BD; los otros 3 son demos visuales.
+    """
+    # Intentar cargar ESCOM desde la BD
+    try:
+        escom = Campus.objects.get(codigo='escom-ipn', activo=True)
+        escom_data = {
+            'existe': True,
+            'nombre':           escom.nombre,
+            'direccion':        escom.direccion,
+            'total_edificios':  escom.edificios.count(),
+            'total_ubicaciones': escom.ubicaciones.filter(activo=True).count(),
+            'total_qrs':        sum(
+                1 for u in escom.ubicaciones.filter(activo=True)
+                if u.tiene_qr
+            ),
+        }
+    except Campus.DoesNotExist:
+        # Si todavía no se ha corrido el comando cargar_escom
+        escom_data = {
+            'existe': False,
+            'nombre':            'ESCOM IPN',
+            'direccion':         'Av. Juan de Dios Bátiz, Lindavista',
+            'total_edificios':   0,
+            'total_ubicaciones': 0,
+            'total_qrs':         0,
+        }
+ 
+    return render(request, 'core/campus.html', {
+        'escom': escom_data,
+    })
 
 def qr_view(request):
     return render(request, 'core/qr.html')
