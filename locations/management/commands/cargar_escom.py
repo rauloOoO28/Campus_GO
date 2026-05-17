@@ -33,8 +33,8 @@ ENTRADAS = [
         'nombre': 'Entrada Principal ESCOM',
         'descripcion': 'Acceso principal a la ESCOM desde Av. Juan de Dios Bátiz. '
                        'Cuenta con caseta de vigilancia y control de acceso.',
-        'latitud':  19.5043270,
-        'longitud': -99.1466870,
+        'latitud':  19.5037473,
+        'longitud': -99.1477416,
         'horario': 'L-V 6:00-22:00 · S 7:00-15:00',
     },
     {
@@ -42,8 +42,8 @@ ENTRADAS = [
         'nombre': 'Entrada Posterior (Wilfrido Massieu)',
         'descripcion': 'Acceso peatonal alternativo desde Av. Wilfrido Massieu. '
                        'Útil para llegar a edificios del lado norte del campus.',
-        'latitud':  19.5057000,
-        'longitud': -99.1471000,
+        'latitud':  19.5052521,
+        'longitud': -99.1453631,
         'horario': 'L-V 7:00-20:00',
     },
 ]

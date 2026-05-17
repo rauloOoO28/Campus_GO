@@ -34,9 +34,7 @@
     z-index: 1;
 }
 
-.leaflet-container {
-    font-family: var(--font-family);
-}
+.leaflet-container { font-family: var(--font-family); }
 
 /* Pin personalizado */
 .custom-pin {
@@ -80,7 +78,6 @@
     50%      { box-shadow: 0 0 0 16px rgba(37, 99, 235, 0),    0 4px 12px rgba(0,0,0,0.3); }
 }
 
-/* Popup de Leaflet con estilo CampusGo */
 .leaflet-popup-content-wrapper {
     border-radius: var(--radius-lg) !important;
     box-shadow: var(--shadow-lg) !important;
@@ -120,7 +117,7 @@
 
 .popup-link:hover { text-decoration: underline; }
 
-/* Banner de bienvenida cuando vienes del QR */
+/* Banner de bienvenida */
 .welcome-banner {
     background: linear-gradient(135deg, var(--color-primary), #0a7a6f);
     color: white;
@@ -154,6 +151,131 @@
     justify-content: center;
 }
 .welcome-banner-close:hover { background: rgba(255,255,255,0.3); }
+
+/* ============================================
+   🎯 PLANIFICADOR DE RUTA (solo si viene del QR)
+   ============================================ */
+.route-planner {
+    background: linear-gradient(135deg, var(--color-primary), #0a7a6f);
+    color: white;
+    padding: 16px;
+    border-top: 1px solid var(--color-border);
+    animation: slide-in 0.4s ease;
+}
+
+.route-planner-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.route-planner-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.route-planner-title {
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.route-planner-subtitle {
+    font-size: 11px;
+    opacity: 0.85;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.route-origen-info {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.route-origen-info i { font-size: 14px; flex-shrink: 0; }
+
+.route-origen-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.route-origen-name {
+    font-weight: 700;
+    margin-top: 1px;
+}
+
+.route-select {
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: white;
+    color: var(--color-heading);
+    font-family: var(--font-family);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231a2e35' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+}
+
+.route-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
+}
+
+.route-select option:disabled { color: #999; }
+
+.btn-iniciar-ruta {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: white;
+    color: var(--color-primary);
+    font-family: var(--font-family);
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-iniciar-ruta:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-iniciar-ruta:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 
@@ -272,11 +394,40 @@
                     </div>
 
                     <div class="map-panel-content" id="lista-ubicaciones">
-                        <!-- Las ubicaciones se inyectan aquí dinámicamente -->
                         <div style="padding: 40px 20px; text-align: center; color: var(--color-text-muted);">
                             <i class="bi bi-arrow-clockwise" style="font-size: 24px; animation: spin 1s linear infinite;"></i>
                             <p style="margin-top: 8px; font-size: 13px; font-weight: 600;">Cargando ubicaciones...</p>
                         </div>
+                    </div>
+
+                    <!-- 🎯 PLANIFICADOR DE RUTA (oculto, se muestra solo si viene del QR) -->
+                    <div id="route-planner" class="route-planner" style="display: none;">
+                        <div class="route-planner-header">
+                            <div class="route-planner-icon">
+                                <i class="bi bi-signpost-split-fill"></i>
+                            </div>
+                            <div>
+                                <div class="route-planner-title">¿A dónde quieres ir?</div>
+                                <div class="route-planner-subtitle">Selecciona tu destino para iniciar</div>
+                            </div>
+                        </div>
+
+                        <div class="route-origen-info">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <div>
+                                <div class="route-origen-label">Saliendo de</div>
+                                <div class="route-origen-name" id="origen-nombre">—</div>
+                            </div>
+                        </div>
+
+                        <select class="route-select" id="destino-select">
+                            <option value="" disabled selected>Selecciona destino…</option>
+                        </select>
+
+                        <button class="btn-iniciar-ruta" id="btn-iniciar-ruta" disabled>
+                            <i class="bi bi-play-fill"></i>
+                            Iniciar ruta
+                        </button>
                     </div>
                 </div>
 
@@ -302,13 +453,10 @@
 (function() {
     'use strict';
 
-    // ============================================================
-    // CONFIGURACIÓN
-    // ============================================================
     const CAMPUS_CODIGO = 'escom-ipn';
     const API_URL = `/api/campus/${CAMPUS_CODIGO}/ubicaciones/`;
+    const RUTA_URL = `{% url 'core:route' %}`;  // URL de la pantalla de ruta
 
-    // Icono según el tipo de ubicación
     const ICONOS_TIPO = {
         entrada:     'bi-door-open-fill',
         aula:        'bi-mortarboard-fill',
@@ -317,15 +465,15 @@
         servicio:    'bi-cup-hot-fill',
     };
 
-    // Estado global
     let mapa;
-    let marcadores = [];      // Array de {marcador, ubicacion}
-    let ubicacionesData = []; // Datos del API
+    let marcadores = [];
+    let ubicacionesData = [];
     let filtroActivo = 'todos';
     let filtroTexto = '';
+    let origenActual = null;  // Ubicación de la que viene el usuario (QR)
 
     // ============================================================
-    // CREAR UN ÍCONO PERSONALIZADO PARA EL PIN
+    // ICONOS
     // ============================================================
     function crearIcono(tipo) {
         const icono = ICONOS_TIPO[tipo] || 'bi-geo-alt-fill';
@@ -338,7 +486,6 @@
         });
     }
 
-    // Pin animado del usuario
     const ICONO_USUARIO = L.divIcon({
         className: '',
         html: '<div class="user-pin"></div>',
@@ -347,28 +494,23 @@
     });
 
     // ============================================================
-    // INICIALIZAR EL MAPA
+    // MAPA
     // ============================================================
     function iniciarMapa(centro, zoom = 17) {
-        mapa = L.map('leaflet-map', {
-            zoomControl: false,
-        }).setView(centro, zoom);
+        mapa = L.map('leaflet-map', { zoomControl: false }).setView(centro, zoom);
 
-        // Capa base: OpenStreetMap (gratis, sin API key)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             maxZoom: 19,
         }).addTo(mapa);
 
-        // Controles de zoom personalizados a la derecha
         L.control.zoom({ position: 'topright' }).addTo(mapa);
     }
 
     // ============================================================
-    // RENDERIZAR PINES EN EL MAPA
+    // RENDER MARCADORES
     // ============================================================
     function renderizarMarcadores(ubicaciones) {
-        // Quitar marcadores previos
         marcadores.forEach(m => mapa.removeLayer(m.marcador));
         marcadores = [];
 
@@ -377,7 +519,6 @@
                 icon: crearIcono(ubicacion.tipo)
             });
 
-            // Popup con info
             const popupHTML = `
                 <div class="popup-title">${ubicacion.nombre}</div>
                 <div class="popup-meta">
@@ -391,13 +532,12 @@
             `;
             marcador.bindPopup(popupHTML);
             marcador.addTo(mapa);
-
             marcadores.push({ marcador, ubicacion });
         });
     }
 
     // ============================================================
-    // RENDERIZAR LISTA LATERAL
+    // RENDER LISTA
     // ============================================================
     function renderizarLista(ubicaciones) {
         const contenedor = document.getElementById('lista-ubicaciones');
@@ -406,9 +546,7 @@
             contenedor.innerHTML = `
                 <div style="padding: 40px 20px; text-align: center; color: var(--color-text-muted);">
                     <i class="bi bi-search" style="font-size: 24px;"></i>
-                    <p style="margin-top: 8px; font-size: 13px; font-weight: 600;">
-                        No se encontraron ubicaciones
-                    </p>
+                    <p style="margin-top: 8px; font-size: 13px; font-weight: 600;">No se encontraron ubicaciones</p>
                 </div>
             `;
             return;
@@ -429,16 +567,13 @@
             </a>
         `).join('');
 
-        // Click en un item → centrar el mapa y abrir popup
         contenedor.querySelectorAll('.map-result-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 const codigo = item.dataset.codigo;
                 const data = marcadores.find(m => m.ubicacion.codigo === codigo);
                 if (data) {
-                    mapa.flyTo([data.ubicacion.lat, data.ubicacion.lng], 19, {
-                        duration: 0.8
-                    });
+                    mapa.flyTo([data.ubicacion.lat, data.ubicacion.lng], 19, { duration: 0.8 });
                     data.marcador.openPopup();
                 }
             });
@@ -446,18 +581,12 @@
     }
 
     function tipoClase(tipo) {
-        const mapa = {
-            entrada: 'secondary',
-            aula: '',
-            laboratorio: 'purple',
-            oficina: 'dark',
-            servicio: 'secondary',
-        };
-        return mapa[tipo] || '';
+        const m = { entrada:'secondary', aula:'', laboratorio:'purple', oficina:'dark', servicio:'secondary' };
+        return m[tipo] || '';
     }
 
     // ============================================================
-    // ACTUALIZAR STATS
+    // STATS
     // ============================================================
     function actualizarStats(ubicaciones) {
         const cuenta = tipo => ubicaciones.filter(u => u.tipo === tipo).length;
@@ -468,7 +597,7 @@
     }
 
     // ============================================================
-    // FILTRADO
+    // FILTROS
     // ============================================================
     function aplicarFiltros() {
         let filtradas = ubicacionesData;
@@ -491,7 +620,66 @@
     }
 
     // ============================================================
-    // POSICIÓN DEL USUARIO (si viene del QR)
+    // 🎯 PLANIFICADOR DE RUTA
+    // ============================================================
+    function inicializarPlanificadorRuta() {
+        if (!origenActual) return;
+
+        const planner = document.getElementById('route-planner');
+        const origenNombre = document.getElementById('origen-nombre');
+        const select = document.getElementById('destino-select');
+        const btn = document.getElementById('btn-iniciar-ruta');
+
+        // Mostrar el panel
+        planner.style.display = 'block';
+
+        // Llenar el nombre del origen
+        origenNombre.textContent = origenActual.nombre;
+
+        // Llenar el dropdown con todas las ubicaciones EXCEPTO el origen
+        const destinos = ubicacionesData.filter(u => u.codigo !== origenActual.codigo);
+
+        select.innerHTML = '<option value="" disabled selected>Selecciona destino…</option>';
+
+        // Agrupar por tipo
+        const tiposVistos = new Set();
+        const tipoLabelMap = {};
+        destinos.forEach(d => {
+            tiposVistos.add(d.tipo);
+            tipoLabelMap[d.tipo] = d.tipo_label;
+        });
+
+        tiposVistos.forEach(tipo => {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = tipoLabelMap[tipo] + 's';
+
+            destinos
+                .filter(d => d.tipo === tipo)
+                .forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.codigo;
+                    opt.textContent = d.nombre;
+                    optgroup.appendChild(opt);
+                });
+
+            select.appendChild(optgroup);
+        });
+
+        // Habilitar el botón cuando seleccionen
+        select.addEventListener('change', () => {
+            btn.disabled = !select.value;
+        });
+
+        // Click del botón → navegar a la página de ruta
+        btn.addEventListener('click', () => {
+            if (!select.value) return;
+            const url = `${RUTA_URL}?desde=${origenActual.codigo}&hasta=${select.value}`;
+            window.location.href = url;
+        });
+    }
+
+    // ============================================================
+    // USUARIO DESDE QR
     // ============================================================
     function manejarUsuarioDesdeQR(ubicaciones) {
         const params = new URLSearchParams(window.location.search);
@@ -502,13 +690,15 @@
         const origen = ubicaciones.find(u => u.codigo === codigoDesde);
         if (!origen) return;
 
-        // Mostrar banner de bienvenida
+        origenActual = origen;
+
+        // Banner
         const banner = document.getElementById('welcome-banner');
         const texto = document.getElementById('welcome-text');
-        texto.innerHTML = `Estás en <strong>${origen.nombre}</strong>. Tu posición está marcada con el punto azul.`;
+        texto.innerHTML = `Estás en <strong>${origen.nombre}</strong>. Selecciona un destino abajo para iniciar tu ruta.`;
         banner.style.display = 'flex';
 
-        // Marcador animado del usuario
+        // Pin animado
         const userMarker = L.marker([origen.lat, origen.lng], {
             icon: ICONO_USUARIO,
             zIndexOffset: 1000
@@ -519,15 +709,16 @@
         `);
         userMarker.addTo(mapa);
 
-        // Centrar el mapa en el origen
+        // Centrar mapa
         mapa.flyTo([origen.lat, origen.lng], 18, { duration: 1.2 });
-
-        // Abrir popup automáticamente después de animación
         setTimeout(() => userMarker.openPopup(), 1300);
+
+        // Activar el planificador de ruta
+        inicializarPlanificadorRuta();
     }
 
     // ============================================================
-    // CARGAR DATOS DESDE EL API
+    // CARGAR DATOS
     // ============================================================
     async function cargarUbicaciones() {
         try {
@@ -537,14 +728,9 @@
 
             ubicacionesData = data.ubicaciones;
 
-            // Iniciar mapa centrado en el campus
             iniciarMapa(data.campus.centro, 18);
-
-            // Renderizar todo
             actualizarStats(ubicacionesData);
             aplicarFiltros();
-
-            // Manejar entrada desde QR
             manejarUsuarioDesdeQR(ubicacionesData);
 
         } catch (error) {
@@ -552,9 +738,7 @@
             document.getElementById('lista-ubicaciones').innerHTML = `
                 <div style="padding: 40px 20px; text-align: center; color: var(--color-danger);">
                     <i class="bi bi-exclamation-triangle-fill" style="font-size: 24px;"></i>
-                    <p style="margin-top: 8px; font-size: 13px; font-weight: 600;">
-                        Error al cargar el mapa
-                    </p>
+                    <p style="margin-top: 8px; font-size: 13px; font-weight: 600;">Error al cargar el mapa</p>
                 </div>
             `;
         }
@@ -564,10 +748,8 @@
     // EVENTOS
     // ============================================================
     document.addEventListener('DOMContentLoaded', () => {
-        // Cargar el mapa
         cargarUbicaciones();
 
-        // Filtros por categoría
         document.querySelectorAll('#categorias-filtros .category-chip').forEach(chip => {
             chip.addEventListener('click', () => {
                 document.querySelectorAll('#categorias-filtros .category-chip')
@@ -578,13 +760,11 @@
             });
         });
 
-        // Filtro por texto (panel lateral)
         document.getElementById('filter-input').addEventListener('input', (e) => {
             filtroTexto = e.target.value;
             aplicarFiltros();
         });
 
-        // Búsqueda topbar (también filtra)
         document.getElementById('search-input').addEventListener('input', (e) => {
             filtroTexto = e.target.value;
             document.getElementById('filter-input').value = e.target.value;
@@ -592,11 +772,6 @@
         });
     });
 })();
-
-// Animación de spin para el loader
-const style = document.createElement('style');
-style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
-document.head.appendChild(style);
 </script>
 
 </body>

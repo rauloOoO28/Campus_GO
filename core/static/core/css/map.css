@@ -293,3 +293,21 @@
 @media (max-width: 480px) {
     .map-stats-row { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   PATCH para map.css
+ 
+/* Hacer que el panel lateral acomode el planificador de ruta al fondo */
+.map-sidebar-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.map-panel-content {
+    flex: 1;
+    min-height: 0;     /* permite que scroll funcione */
+}
+
+.route-planner {
+    flex-shrink: 0;    /* nunca se encoge */
+}
