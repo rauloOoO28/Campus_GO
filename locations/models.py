@@ -48,6 +48,17 @@ class Edificio(models.Model):
     descripcion = models.TextField(blank=True)
     pisos = models.PositiveSmallIntegerField(default=1)
 
+    latitud = models.FloatField(
+        null=True, 
+        blank=True, 
+        help_text="Latitud geográfica del edificio (ej. 19.504505)"
+    )
+    longitud = models.FloatField(
+        null=True, 
+        blank=True, 
+        help_text="Longitud geográfica del edificio (ej. -99.146911)"
+    )
+
     class Meta:
         verbose_name = "Edificio"
         verbose_name_plural = "Edificios"
