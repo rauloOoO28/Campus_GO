@@ -64,3 +64,7 @@ def detail_view(request):
 
 
 # Puedes seguir agregando def qr_view, def route_view, etc. siguiendo la misma lógica...
+
+# Vista de Registro
+def register_view(request):
+    return render(request, 'core/registro.html')

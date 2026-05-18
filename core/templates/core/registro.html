@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusGo · Registro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="{% static 'core/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/login.css' %}">
+</head>
+<body>
+
+<div class="login-page">
+
+    <!-- Visual left side (reuse styles) -->
+    <div class="login-visual">
+        <div class="login-brand">
+            <div class="login-brand-icon">
+                <i class="bi bi-geo-alt-fill"></i>
+            </div>
+            <div class="login-brand-text">Campus<span>Go</span></div>
+        </div>
+
+        <div class="login-hero">
+            <h1 class="login-hero-title">
+                Únete a <span>CampusGo</span>
+            </h1>
+            <p class="login-hero-text">
+                Crea tu cuenta institucional para guardar rutas y acceder a funciones adicionales.
+            </p>
+        </div>
+    </div>
+
+    <!-- Form right side -->
+    <div class="login-form-side">
+        <div class="login-form-container">
+
+            <h2 class="login-form-title">Registro</h2>
+            <p class="login-form-subtitle">Rellena los datos para crear tu cuenta.</p>
+
+            <form method="post" action="">
+                {% csrf_token %}
+                <div class="login-form-group">
+                    <label class="input-label">Nombre completo</label>
+                    <div class="login-form-input-wrapper">
+                        <i class="bi bi-person-fill"></i>
+                        <input id="id_nombre" name="nombre" type="text" class="input-base" placeholder="Nombre completo">
+                    </div>
+                </div>
+
+                <div class="login-form-group">
+                    <label class="input-label">Correo institucional</label>
+                    <div class="login-form-input-wrapper">
+                        <i class="bi bi-envelope-fill"></i>
+                        <input id="id_email" name="email" type="email" class="input-base" placeholder="correo@correo.com">
+                    </div>
+                </div>
+
+                <div class="login-form-group">
+                    <label class="input-label">Rol</label>
+                    <div class="login-form-input-wrapper">
+                        <i class="bi bi-people-fill"></i>
+                        <select id="id_role" name="role" class="input-base">
+                            <option value="" disabled selected>Selecciona tu rol</option>
+                            <option value="alumno">Alumno</option>
+                            <option value="visitante">Visitante</option>
+                            <option value="maestro">Maestro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="login-form-group">
+                    <label class="input-label">Contraseña</label>
+                    <div class="login-form-input-wrapper">
+                        <i class="bi bi-lock-fill"></i>
+                        <input id="id_password1" name="password1" type="password" class="input-base" placeholder="Contraseña">
+                    </div>
+                </div>
+
+                <div class="login-form-group">
+                    <label class="input-label">Confirmar contraseña</label>
+                    <div class="login-form-input-wrapper">
+                        <i class="bi bi-lock-fill"></i>
+                        <input id="id_password2" name="password2" type="password" class="input-base" placeholder="Confirmar contraseña">
+                    </div>
+                </div>
+
+                <div class="login-form-options" style="justify-content:space-between;align-items:center;">
+                    
+                    <a href="{% url 'core:login' %}">¿Ya tienes cuenta?</a>
+                </div>
+
+                <div style="display:flex;gap:12px;margin-top:18px;">
+                    <button type="submit" class="btn-login-submit">
+                        <i class="bi bi-person-check-fill"></i>
+                        Registrarse
+                    </button>
+                    <a href="{% url 'core:login' %}" class="btn-login-submit registro" style="background:#e6e6e6;color:var(--text-color);">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="{% static 'core/js/shell.js' %}"></script>
+<script src="{% static 'core/js/registro.js' %}"></script>
+</body>
+</html>

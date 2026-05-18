@@ -69,10 +69,10 @@ const SIDEBAR_HTML = `
 
         <div class="sidebar-footer">
             <div class="sidebar-user">
-                <div class="user-avatar">OS</div>
+                <div class="user-avatar">IV</div>
                 <div class="sidebar-user-info">
-                    <div class="sidebar-user-name">Oscar Sánchez</div>
-                    <div class="sidebar-user-role">Estudiante</div>
+                    <div class="sidebar-user-name">Invitado</div>
+                    <div class="sidebar-user-role">Invitado</div>
                 </div>
                 <i class="bi bi-chevron-right" style="color: var(--color-text-muted); font-size: 14px;"></i>
             </div>
@@ -127,4 +127,28 @@ function injectShell() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', injectShell);
+function setupPasswordToggles() {
+    const toggles = document.querySelectorAll('.password-toggle');
+    toggles.forEach(button => {
+        button.addEventListener('click', () => {
+            const group = button.closest('.login-form-group');
+            if (!group) return;
+            const input = group.querySelector('input[type="password"], input[type="text"]');
+            if (!input) return;
+
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            const icon = button.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('bi-eye-fill', !isPassword);
+                icon.classList.toggle('bi-eye-slash-fill', isPassword);
+            }
+            button.setAttribute('aria-label', isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    injectShell();
+    setupPasswordToggles();
+});

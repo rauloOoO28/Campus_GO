@@ -15,11 +15,11 @@
 <link rel="stylesheet" href="{% static 'core/css/login.css' %}">
 
 <style>
-/* Estilos básicos para el body para evitar márgenes blancos */
 body {
     margin: 0;
     padding: 0;
     font-family: var(--font-family);
+    background: linear-gradient(180deg, #f8fbfb 0%, #ffffff 100%);
 }
 </style>
 
@@ -69,33 +69,38 @@ body {
             <h2 class="login-form-title">Iniciar sesión</h2>
             <p class="login-form-subtitle">Ingresa tus credenciales para acceder al sistema.</p>
 
-            <form>
+            <form id="login-form" novalidate>
                 <div class="login-form-group">
-                    <label class="input-label">Correo institucional</label>
+                    <label class="input-label" for="login-email">Correo institucional</label>
                     <div class="login-form-input-wrapper">
                         <i class="bi bi-envelope-fill"></i>
-                        <input type="email" class="input-base" placeholder="correo@correo.com">
+                        <input id="login-email" name="email" type="email" class="input-base" placeholder="correo@correo.com">
                     </div>
                 </div>
 
                 <div class="login-form-group">
-                    <label class="input-label">Contraseña</label>
+                    <label class="input-label" for="login-password">Contraseña</label>
                     <div class="login-form-input-wrapper">
                         <i class="bi bi-lock-fill"></i>
-                        <input type="password" class="input-base" placeholder="••••••••">
+                        <input id="login-password" name="password" type="password" class="input-base" placeholder="••••••••">
                     </div>
                 </div>
 
                 <div class="login-form-options">
                     <label>
-                        <input type="checkbox">
+                        <input type="checkbox" name="remember">
                         Recordarme
                     </label>
                     <a href="#">¿Olvidaste tu contraseña?</a>
                 </div>
 
-               
-                <button type="button" class="btn-login-submit" onclick="">
+                <p class="login-error-message" id="login-error-message" aria-live="polite"></p>
+
+                <a href="{% url 'core:registro' %}" class="btn-login-submit registro">
+                    <i class="bi bi-person-plus-fill"></i>
+                    Registrate en CampusGo
+                </a>
+                <button type="submit" class="btn-login-submit">
                     <i class="bi bi-box-arrow-in-right"></i>
                     Entrar a CampusGo
                 </button>
@@ -115,6 +120,43 @@ body {
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('login-form');
+    const email = document.getElementById('login-email');
+    const password = document.getElementById('login-password');
+    const errorMessage = document.getElementById('login-error-message');
+
+    function clearValidation() {
+        errorMessage.textContent = '';
+        errorMessage.classList.remove('login-error-visible');
+        email.classList.remove('input-error');
+        password.classList.remove('input-error');
+    }
+
+    form.addEventListener('submit', function (event) {
+        const errors = [];
+        clearValidation();
+
+        if (!email.value.trim()) {
+            errors.push('Ingresa tu correo institucional.');
+            email.classList.add('input-error');
+        }
+
+        if (!password.value.trim()) {
+            errors.push('Ingresa tu contraseña.');
+            password.classList.add('input-error');
+        }
+
+        if (errors.length) {
+            event.preventDefault();
+            errorMessage.textContent = errors.join(' ');
+            errorMessage.classList.add('login-error-visible');
+            email.focus();
+        }
+    });
+});
+</script>
 <script src="{% static 'core/js/shell.js' %}"></script>
 </body>
 </html>
