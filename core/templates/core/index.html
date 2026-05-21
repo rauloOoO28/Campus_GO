@@ -1,12 +1,42 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>CampusGo</title>
-<meta http-equiv="refresh" content="0; url=pages/login.html">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusGo · Inicio</title>
+    <link rel="stylesheet" href="{% static 'core/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/login.css' %}">
 </head>
 <body>
-<p>Redirigiendo a <a href="pages/login.html">CampusGo</a>...</p>
+    <div class="login-page" style="padding: 40px;">
+        <div class="login-visual">
+            <div class="login-brand">
+                <div class="login-brand-icon">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <div class="login-brand-text">Campus<span>Go</span></div>
+            </div>
+            <div class="login-hero">
+                <h1 class="login-hero-title">Bienvenido a CampusGo</h1>
+                <p class="login-hero-text">
+                    Tu plataforma para explorar el campus, guardar rutas y acceder a información útil.
+                </p>
+                <p class="login-hero-text">
+                    {% if request.user.is_authenticated %}
+                        Has iniciado sesión como <strong>{{ request.user.email }}</strong>.
+                    {% else %}
+                        Inicia sesión o regístrate para comenzar.
+                    {% endif %}
+                </p>
+                <div style="display:flex; gap:12px; margin-top:24px;">
+                    <a class="btn-login-submit" href="{% url 'core:login' %}">Iniciar sesión</a>
+                    <a class="btn-login-submit registro" href="{% url 'core:registro' %}">Registrarse</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'core/js/shell.js' %}"></script>
 </body>
 </html>
  

@@ -69,12 +69,20 @@ body {
             <h2 class="login-form-title">Iniciar sesión</h2>
             <p class="login-form-subtitle">Ingresa tus credenciales para acceder al sistema.</p>
 
-            <form id="login-form" novalidate>
+            <form id="login-form" method="post" novalidate>
+                {% csrf_token %}
+                {% if messages %}
+                    <div class="login-form-messages">
+                        {% for message in messages %}
+                            <div class="message {{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
                 <div class="login-form-group">
                     <label class="input-label" for="login-email">Correo institucional</label>
                     <div class="login-form-input-wrapper">
                         <i class="bi bi-envelope-fill"></i>
-                        <input id="login-email" name="email" type="email" class="input-base" placeholder="correo@correo.com">
+                        <input id="login-email" name="email" type="email" class="input-base" placeholder="correo@correo.com" required>
                     </div>
                 </div>
 

@@ -446,6 +446,24 @@
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin=""></script>
 
+<script>
+// Pasar datos del usuario autenticado a JavaScript
+window.USER_DATA = {
+    is_authenticated: {{ request.user.is_authenticated|lower }},
+    {% if request.user.is_authenticated and perfil %}
+        nombre_completo: "{{ perfil.nombre_completo }}",
+        rol: "{{ perfil.get_rol_display }}",
+        email: "{{ request.user.email }}",
+        initials: "{{ perfil.nombre_completo|truncatewords:2|join:''|slice:':2'|upper }}"
+    {% else %}
+        nombre_completo: "Invitado",
+        rol: "Invitado",
+        email: "",
+        initials: "IV"
+    {% endif %}
+};
+</script>
+
 <script src="{% static 'core/js/shell.js' %}"></script>
 
 <!-- 🎯 Lógica del mapa -->

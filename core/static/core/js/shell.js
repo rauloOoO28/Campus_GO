@@ -23,7 +23,21 @@ const URLS = {
     admin:  '/admin-panel/'
 };
 
-const SIDEBAR_HTML = `
+// Datos globales del usuario (se pasan desde las plantillas)
+const USER_DATA = window.USER_DATA || {
+    is_authenticated: false,
+    nombre_completo: 'Invitado',
+    rol: 'Invitado',
+    email: '',
+    initials: 'IV'
+};
+
+function generateSidebarHTML() {
+    const initials = USER_DATA.initials || 'IV';
+    const nombre = USER_DATA.nombre_completo || 'Invitado';
+    const rol = USER_DATA.rol || 'Invitado';
+    
+    return `
     <aside class="sidebar">
         <div class="sidebar-brand">
             <div class="sidebar-brand-icon"><i class="bi bi-geo-alt-fill"></i></div>
@@ -69,10 +83,10 @@ const SIDEBAR_HTML = `
 
         <div class="sidebar-footer">
             <div class="sidebar-user">
-                <div class="user-avatar">IV</div>
+                <div class="user-avatar">${initials}</div>
                 <div class="sidebar-user-info">
-                    <div class="sidebar-user-name">Invitado</div>
-                    <div class="sidebar-user-role">Invitado</div>
+                    <div class="sidebar-user-name">${nombre}</div>
+                    <div class="sidebar-user-role">${rol}</div>
                 </div>
                 <i class="bi bi-chevron-right" style="color: var(--color-text-muted); font-size: 14px;"></i>
             </div>
@@ -80,6 +94,7 @@ const SIDEBAR_HTML = `
     </aside>
     <div class="sidebar-overlay"></div>
 `;
+}
 
 const PROTO_NAV_HTML = `
     <header class="app-header">
@@ -96,9 +111,9 @@ function injectShell() {
     const navMount = document.querySelector('[data-mount="proto-nav"]');
     if (navMount) navMount.outerHTML = PROTO_NAV_HTML;
 
-    // Inyectar sidebar
+    // Inyectar sidebar (generarla aquí para que tenga acceso a USER_DATA)
     const sidebarMount = document.querySelector('[data-mount="sidebar"]');
-    if (sidebarMount) sidebarMount.outerHTML = SIDEBAR_HTML;
+    if (sidebarMount) sidebarMount.outerHTML = generateSidebarHTML();
 
     // Marcar la pantalla activa
     if (activeKey) {

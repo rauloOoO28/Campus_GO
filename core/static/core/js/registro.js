@@ -2,10 +2,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.querySelector('form');
     if (!form) return;
 
-    const nombre = document.getElementById('id_nombre');
+    const nombre = document.getElementById('id_nombre_completo');
     const email = document.getElementById('id_email');
-    const role = document.getElementById('id_role');
-    const pwd1 = document.getElementById('id_password1');
+    const role = document.getElementById('id_rol');
+    const pwd1 = document.getElementById('id_password');
     const pwd2 = document.getElementById('id_password2');
 
     function showError(input, msg) {
@@ -69,13 +69,27 @@ document.addEventListener('DOMContentLoaded', () => {
         clearError(pwd1); return true;
     }
 
+    function showFormMessage(text) {
+        const msg = document.getElementById('registro-message');
+        if (!msg) return;
+        if (!text) {
+            msg.style.display = 'none';
+            msg.textContent = '';
+            return;
+        }
+        msg.style.display = 'block';
+        msg.textContent = text;
+    }
+
     function validatePasswordMatch() {
         const v1 = pwd1.value || '';
         const v2 = pwd2.value || '';
-        if (!v2) { showError(pwd2, 'Confirma la contraseña.'); return false; }
-        if (startsWithDoubleSpace(v2)) { showError(pwd2, 'No debe iniciar con doble espacio.'); return false; }
-        if (v1 !== v2) { showError(pwd2, 'Las contraseñas no coinciden.'); return false; }
-        clearError(pwd2); return true;
+        if (!v2) { showError(pwd2, 'Confirma la contraseña.'); showFormMessage('Las contraseñas no coinciden.'); return false; }
+        if (startsWithDoubleSpace(v2)) { showError(pwd2, 'No debe iniciar con doble espacio.'); showFormMessage('Las contraseñas no coinciden.'); return false; }
+        if (v1 !== v2) { showError(pwd2, 'Las contraseñas no coinciden.'); showFormMessage('Las contraseñas no coinciden.'); return false; }
+        clearError(pwd2);
+        showFormMessage('');
+        return true;
     }
 
     nombre && nombre.addEventListener('input', validateNombre);

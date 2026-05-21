@@ -45,11 +45,19 @@
 
             <form method="post" action="">
                 {% csrf_token %}
+                <div id="registro-message" class="login-form-messages" style="display:none; margin-bottom:18px; padding:12px; border-radius:14px; background:#fdecea; color:#c0392b; border:1px solid #f5c6cb;"></div>
+                {% if messages %}
+                    <div class="login-form-messages">
+                        {% for message in messages %}
+                            <div class="message {{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
                 <div class="login-form-group">
                     <label class="input-label">Nombre completo</label>
                     <div class="login-form-input-wrapper">
                         <i class="bi bi-person-fill"></i>
-                        <input id="id_nombre" name="nombre" type="text" class="input-base" placeholder="Nombre completo">
+                        <input id="id_nombre_completo" name="nombre_completo" type="text" class="input-base" placeholder="Nombre completo" required>
                     </div>
                 </div>
 
@@ -65,7 +73,7 @@
                     <label class="input-label">Rol</label>
                     <div class="login-form-input-wrapper">
                         <i class="bi bi-people-fill"></i>
-                        <select id="id_role" name="role" class="input-base">
+                        <select id="id_rol" name="rol" class="input-base" required>
                             <option value="" disabled selected>Selecciona tu rol</option>
                             <option value="alumno">Alumno</option>
                             <option value="visitante">Visitante</option>
@@ -78,7 +86,7 @@
                     <label class="input-label">Contraseña</label>
                     <div class="login-form-input-wrapper">
                         <i class="bi bi-lock-fill"></i>
-                        <input id="id_password1" name="password1" type="password" class="input-base" placeholder="Contraseña">
+                        <input id="id_password" name="password" type="password" class="input-base" placeholder="Contraseña" required>
                     </div>
                 </div>
 
@@ -86,7 +94,7 @@
                     <label class="input-label">Confirmar contraseña</label>
                     <div class="login-form-input-wrapper">
                         <i class="bi bi-lock-fill"></i>
-                        <input id="id_password2" name="password2" type="password" class="input-base" placeholder="Confirmar contraseña">
+                        <input id="id_password2" name="password2" type="password" class="input-base" placeholder="Confirmar contraseña" required>
                     </div>
                 </div>
 
