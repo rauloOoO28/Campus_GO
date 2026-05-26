@@ -78,6 +78,7 @@ class Ubicacion(models.Model):
     TIPO_LABORATORIO = 'laboratorio'
     TIPO_OFICINA = 'oficina'
     TIPO_SERVICIO = 'servicio'
+    TIPO_BAÑO = 'baño'
 
     TIPOS = [
         (TIPO_ENTRADA, 'Entrada'),
@@ -85,6 +86,7 @@ class Ubicacion(models.Model):
         (TIPO_LABORATORIO, 'Laboratorio'),
         (TIPO_OFICINA, 'Oficina'),
         (TIPO_SERVICIO, 'Servicio (cafetería, biblioteca, etc.)'),
+        (TIPO_BAÑO, 'Baño'),
     ]
 
     campus = models.ForeignKey(

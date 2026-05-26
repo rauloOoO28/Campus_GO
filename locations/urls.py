@@ -20,5 +20,8 @@ urlpatterns = [
     path('api/campus/<slug:codigo_campus>/ubicaciones/',
          views.api_ubicaciones_campus,
          name='api_ubicaciones_campus'),
+    
+    # API para calcular ruta entre 2 ubicaciones
+    path('api/ruta/', views.api_calcular_ruta, name='api_calcular_ruta')
 ]
  
