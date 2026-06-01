@@ -1,27 +1,53 @@
 """
 locations/urls.py
- 
-URLs públicas y API de la app locations.
+
+CORRECCIÓN: el prefijo cambió de /admin/grafo/ a /grafo/ para no colisionar
+con Django Admin (que captura todo lo que empieza con admin/).
+
+El editor sigue protegido con @staff_member_required en las vistas,
+así que solo los administradores pueden acceder.
 """
- 
+
 from django.urls import path
-from . import views
- 
+from . import views, views_editor
+
 app_name = 'locations'
- 
+
 urlpatterns = [
-    # URL pública a la que apuntan los QRs
+    # QRs públicos
     path('qr/<slug:codigo>/', views.resolver_qr, name='resolver_qr'),
- 
-    # Misma página pero acceso desde navegación interna
     path('ubicacion/<slug:codigo>/', views.detalle_publico, name='detalle_publico'),
- 
-    # API JSON que alimenta el mapa
+
+    # API pública del mapa
     path('api/campus/<slug:codigo_campus>/ubicaciones/',
          views.api_ubicaciones_campus,
          name='api_ubicaciones_campus'),
-    
-    # API para calcular ruta entre 2 ubicaciones
-    path('api/ruta/', views.api_calcular_ruta, name='api_calcular_ruta')
+    path('api/ruta/', views.api_calcular_ruta, name='api_calcular_ruta'),
+
+    # ============================================================
+    # ⭐ Editor visual del grafo (requiere ser staff)
+    # ============================================================
+    path('grafo/<slug:codigo_campus>/',
+         views_editor.editor_grafo_view,
+         name='admin_editor_grafo'),
+
+    # API del editor (AJAX)
+    path('grafo/<slug:codigo_campus>/api/data/',
+         views_editor.api_editor_data,
+         name='admin_editor_data'),
+    path('grafo/<slug:codigo_campus>/api/nodo/crear/',
+         views_editor.api_crear_nodo,
+         name='admin_editor_crear_nodo'),
+    path('grafo/<slug:codigo_campus>/api/nodo/<int:nodo_id>/actualizar/',
+         views_editor.api_actualizar_nodo,
+         name='admin_editor_actualizar_nodo'),
+    path('grafo/<slug:codigo_campus>/api/nodo/<int:nodo_id>/eliminar/',
+         views_editor.api_eliminar_nodo,
+         name='admin_editor_eliminar_nodo'),
+    path('grafo/<slug:codigo_campus>/api/arista/crear/',
+         views_editor.api_crear_arista,
+         name='admin_editor_crear_arista'),
+    path('grafo/<slug:codigo_campus>/api/arista/<int:arista_id>/eliminar/',
+         views_editor.api_eliminar_arista,
+         name='admin_editor_eliminar_arista'),
 ]
- 

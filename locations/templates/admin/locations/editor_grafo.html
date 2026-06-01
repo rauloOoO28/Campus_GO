@@ -1,0 +1,501 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor de grafo · {{ campus.nombre }} · CampusGo Admin</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin="">
+
+<style>
+:root {
+    --color-primary: #0E9E8E;
+    --color-primary-hover: #0c8a7c;
+    --color-secondary: #E8721C;
+    --color-heading: #1a2e35;
+    --color-white: #FFFFFF;
+    --color-bg: #F7F7F5;
+    --color-border: #E4E4E2;
+    --color-danger: #dc3545;
+    --color-success: #28a745;
+    --color-info: #2563eb;
+    --color-text-muted: #888;
+    --font-family: 'Manrope', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: var(--font-family);
+    background: var(--color-bg);
+    color: var(--color-heading);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* TOPBAR */
+.editor-topbar {
+    background: var(--color-heading);
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-shrink: 0;
+}
+.editor-topbar-left { display: flex; align-items: center; gap: 14px; }
+.editor-back {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; text-decoration: none;
+}
+.editor-back:hover { background: rgba(255,255,255,0.2); }
+.editor-title { font-size: 16px; font-weight: 800; }
+.editor-subtitle { font-size: 12px; opacity: 0.7; font-weight: 600; }
+.editor-topbar-stats { display: flex; gap: 16px; font-size: 13px; font-weight: 700; }
+.editor-topbar-stats span strong {
+    color: var(--color-secondary);
+    font-size: 16px; margin-right: 4px;
+}
+
+/* LAYOUT */
+.editor-layout {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    overflow: hidden;
+}
+
+/* SIDEBAR */
+.editor-sidebar {
+    background: white;
+    border-right: 1px solid var(--color-border);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+.sidebar-section { padding: 16px; border-bottom: 1px solid var(--color-border); }
+.sidebar-section-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--color-text-muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+/* Modos */
+.modes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.mode-btn {
+    padding: 12px 8px;
+    background: white;
+    border: 1.5px solid var(--color-border);
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    font-family: var(--font-family);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-heading);
+    transition: all 0.2s;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.mode-btn i { font-size: 18px; }
+.mode-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.mode-btn.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(14, 158, 142, 0.3);
+}
+
+.mode-hint {
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    background: var(--color-bg);
+    padding: 8px 10px;
+    border-radius: 8px;
+    display: flex; align-items: center; gap: 6px;
+}
+.mode-hint i { color: var(--color-info); font-size: 12px; flex-shrink: 0; }
+
+/* Listas */
+.element-list { display: flex; flex-direction: column; gap: 4px; max-height: 280px; overflow-y: auto; }
+.element-item {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--color-bg);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px;
+}
+.element-item:hover { background: rgba(14, 158, 142, 0.08); }
+.element-item.selected { background: rgba(14, 158, 142, 0.15); }
+.element-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: rgba(14, 158, 142, 0.15);
+    color: var(--color-primary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+}
+.element-icon.entrada  { background: rgba(232, 114, 28, 0.15); color: var(--color-secondary); }
+.element-icon.plaza    { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.element-icon.cruce    { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
+.element-icon.edificio { background: rgba(26, 46, 53, 0.1);    color: var(--color-heading); }
+.element-icon.escalera { background: rgba(220, 53, 69, 0.15);  color: var(--color-danger); }
+.element-info { flex: 1; min-width: 0; }
+.element-name { font-weight: 700; color: var(--color-heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.element-meta { font-size: 10px; color: var(--color-text-muted); font-weight: 600; margin-top: 2px; }
+.empty-list { padding: 20px 12px; text-align: center; color: var(--color-text-muted); font-size: 12px; font-weight: 600; }
+
+/* Tools */
+.tools-grid { display: grid; grid-template-columns: 1fr; gap: 6px; }
+.tool-btn {
+    padding: 10px 14px;
+    background: white;
+    border: 1.5px solid var(--color-border);
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--font-family);
+    font-size: 12px; font-weight: 700;
+    color: var(--color-heading);
+    display: flex; align-items: center; gap: 10px;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+.tool-btn:hover { border-color: var(--color-primary); color: var(--color-primary); transform: translateY(-1px); }
+.tool-btn i { font-size: 14px; }
+
+/* MAPA */
+.editor-map-container { position: relative; overflow: hidden; }
+#editor-map { width: 100%; height: 100%; }
+.leaflet-container { font-family: var(--font-family); }
+
+/* Pin del nodo */
+.editor-pin {
+    background: var(--color-primary);
+    width: 28px; height: 28px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 3px solid white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+.editor-pin i { transform: rotate(45deg); color: white; font-size: 11px; }
+.editor-pin.entrada  { background: var(--color-secondary); }
+.editor-pin.plaza    { background: #f59e0b; }
+.editor-pin.cruce    { background: #6366f1; }
+.editor-pin.pasillo  { background: var(--color-primary); }
+.editor-pin.edificio { background: var(--color-heading); }
+.editor-pin.escalera { background: var(--color-danger); }
+.editor-pin.selected {
+    transform: rotate(-45deg) scale(1.25);
+    box-shadow: 0 0 0 4px var(--color-primary), 0 4px 12px rgba(0,0,0,0.4);
+}
+.editor-pin.connecting { animation: pulse-pin 1s infinite; }
+@keyframes pulse-pin {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(14, 158, 142, 0.4); }
+    50%      { box-shadow: 0 0 0 12px rgba(14, 158, 142, 0); }
+}
+
+.editor-map-container.mode-create #editor-map { cursor: crosshair; }
+
+/* Banner */
+.editor-hint-banner {
+    position: absolute;
+    top: 14px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(26, 46, 53, 0.95);
+    color: white;
+    padding: 10px 18px;
+    border-radius: 24px;
+    font-size: 13px; font-weight: 700;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    display: flex; align-items: center; gap: 8px;
+    pointer-events: none;
+    animation: slide-down 0.3s ease;
+}
+.editor-hint-banner i { color: var(--color-secondary); font-size: 16px; }
+@keyframes slide-down {
+    from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Popups */
+.leaflet-popup-content-wrapper {
+    border-radius: 12px !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+}
+.leaflet-popup-content { margin: 14px 16px !important; font-family: var(--font-family) !important; font-size: 13px !important; }
+.popup-actions { display: flex; gap: 6px; margin-top: 10px; }
+.popup-btn {
+    padding: 6px 10px;
+    border: 1.5px solid var(--color-border);
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-family);
+    font-size: 11px; font-weight: 700;
+    color: var(--color-heading);
+}
+.popup-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.popup-btn.danger:hover { border-color: var(--color-danger); color: var(--color-danger); }
+
+/* TOASTS */
+.toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+.toast {
+    background: white;
+    border-radius: 10px;
+    padding: 12px 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; font-weight: 700;
+    color: var(--color-heading);
+    min-width: 280px; max-width: 380px;
+    animation: toast-in 0.3s ease;
+    border-left: 4px solid var(--color-primary);
+}
+.toast.error   { border-left-color: var(--color-danger); }
+.toast.success { border-left-color: var(--color-success); }
+.toast.warning { border-left-color: #f59e0b; }
+.toast i { font-size: 18px; }
+.toast.success i { color: var(--color-success); }
+.toast.error   i { color: var(--color-danger); }
+.toast.warning i { color: #f59e0b; }
+.toast.info    i { color: var(--color-primary); }
+@keyframes toast-in {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* MODAL */
+.modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9000;
+    backdrop-filter: blur(4px);
+}
+.modal-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 440px; width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.modal-title { font-size: 16px; font-weight: 800; color: var(--color-heading); margin-bottom: 6px; }
+.modal-subtitle { font-size: 12px; color: var(--color-text-muted); font-weight: 600; margin-bottom: 18px; }
+.modal-field { margin-bottom: 14px; }
+.modal-label {
+    display: block;
+    font-size: 11px; font-weight: 800;
+    color: var(--color-heading);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+.modal-input, .modal-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--color-border);
+    border-radius: 8px;
+    font-family: var(--font-family);
+    font-size: 13px; font-weight: 600;
+    color: var(--color-heading);
+    background: white;
+}
+.modal-input:focus, .modal-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(14, 158, 142, 0.15);
+}
+.modal-checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; padding: 6px 0; }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+.modal-btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 24px;
+    font-family: var(--font-family);
+    font-size: 13px; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.modal-btn-cancel { background: white; border: 1.5px solid var(--color-border); color: var(--color-heading); }
+.modal-btn-cancel:hover { border-color: var(--color-text-muted); }
+.modal-btn-primary { background: var(--color-primary); color: white; }
+.modal-btn-primary:hover { background: var(--color-primary-hover); transform: translateY(-1px); }
+.modal-btn-danger { background: var(--color-danger); color: white; }
+
+/* LOADING */
+.editor-loading {
+    position: absolute; inset: 0;
+    background: rgba(247, 247, 245, 0.95);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 8000;
+}
+.editor-loading-content { text-align: center; color: var(--color-heading); }
+.editor-loading i { font-size: 40px; color: var(--color-primary); animation: spin 1s linear infinite; }
+.editor-loading p { margin-top: 12px; font-weight: 700; font-size: 14px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header class="editor-topbar">
+    <div class="editor-topbar-left">
+        <a href="/admin/" class="editor-back" title="Volver al admin">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div>
+            <div class="editor-title">Editor de grafo · {{ campus.nombre }}</div>
+            <div class="editor-subtitle">Diseña la red de pasillos del campus</div>
+        </div>
+    </div>
+    <div class="editor-topbar-stats">
+        <span><strong id="stat-nodos">0</strong>nodos</span>
+        <span><strong id="stat-aristas">0</strong>conexiones</span>
+    </div>
+</header>
+
+<div class="editor-layout">
+
+    <aside class="editor-sidebar">
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Modo de edición</div>
+            <div class="modes-grid">
+                <button class="mode-btn active" data-mode="navigate">
+                    <i class="bi bi-cursor-fill"></i>
+                    Navegar
+                </button>
+                <button class="mode-btn" data-mode="create">
+                    <i class="bi bi-plus-circle-fill"></i>
+                    Crear nodo
+                </button>
+                <button class="mode-btn" data-mode="connect">
+                    <i class="bi bi-share-fill"></i>
+                    Conectar
+                </button>
+                <button class="mode-btn" data-mode="delete">
+                    <i class="bi bi-trash-fill"></i>
+                    Eliminar
+                </button>
+            </div>
+            <div class="mode-hint" id="mode-hint">
+                <i class="bi bi-info-circle-fill"></i>
+                <span id="mode-hint-text">Modo navegación: explora el grafo libremente.</span>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">
+                Nodos (<span id="count-nodos">0</span>)
+            </div>
+            <div class="element-list" id="lista-nodos">
+                <div class="empty-list">Aún no hay nodos. Cambia a "Crear nodo" y haz clic en el mapa.</div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">
+                Conexiones (<span id="count-aristas">0</span>)
+            </div>
+            <div class="element-list" id="lista-aristas">
+                <div class="empty-list">Aún no hay conexiones.</div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Herramientas</div>
+            <div class="tools-grid">
+                <button class="tool-btn" id="btn-centrar">
+                    <i class="bi bi-bullseye"></i> Centrar mapa
+                </button>
+                <button class="tool-btn" id="btn-ver-ubicaciones">
+                    <i class="bi bi-geo-alt-fill"></i> Mostrar ubicaciones (QR)
+                </button>
+                <a href="/admin/locations/" class="tool-btn">
+                    <i class="bi bi-box-arrow-right"></i> Volver al admin
+                </a>
+            </div>
+        </div>
+
+    </aside>
+
+    <div class="editor-map-container" id="map-container">
+        <div id="editor-map"></div>
+        <div id="hint-banner-container"></div>
+        <div class="editor-loading" id="editor-loading">
+            <div class="editor-loading-content">
+                <i class="bi bi-arrow-clockwise"></i>
+                <p>Cargando editor...</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<div id="modal-container"></div>
+
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+<script>
+// ============================================
+// CONFIGURACIÓN ⭐ URLs corregidas (sin /admin/)
+// ============================================
+window.EDITOR_CONFIG = {
+    campusCodigo: '{{ campus.codigo }}',
+    campusNombre: '{{ campus.nombre|escapejs }}',
+    centro: {{ centro|safe }},
+    urls: {
+        data:           "{% url 'locations:admin_editor_data' campus.codigo %}",
+        crearNodo:      "{% url 'locations:admin_editor_crear_nodo' campus.codigo %}",
+        actualizarNodo: "/grafo/{{ campus.codigo }}/api/nodo/__ID__/actualizar/",
+        eliminarNodo:   "/grafo/{{ campus.codigo }}/api/nodo/__ID__/eliminar/",
+        crearArista:    "{% url 'locations:admin_editor_crear_arista' campus.codigo %}",
+        eliminarArista: "/grafo/{{ campus.codigo }}/api/arista/__ID__/eliminar/",
+    }
+};
+
+function getCSRFToken() {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrftoken') return value;
+    }
+    return '';
+}
+window.EDITOR_CONFIG.csrfToken = getCSRFToken();
+</script>
+
+<script src="{% static 'locations/js/editor.js' %}"></script>
+
+</body>
+</html>
