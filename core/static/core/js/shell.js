@@ -37,6 +37,25 @@ function generateSidebarHTML() {
     const nombre = USER_DATA.nombre_completo || 'Invitado';
     const rol = USER_DATA.rol || 'Invitado';
     
+    // Obtenemos si el usuario es administrador desde los datos de Django
+    const isAdmin = USER_DATA.is_admin === true;
+
+    // Construimos la sección de Administración de forma condicional
+    let adminMenuHTML = '';
+    if (isAdmin) {
+        adminMenuHTML = `
+            <a href="${URLS.admin}" data-key="admin" class="sidebar-link">
+                <i class="bi bi-shield-lock-fill"></i> Administración
+            </a>
+        `;
+    }
+
+    const logoutMenuHTML = USER_DATA.is_authenticated ? `
+        <a href="/logout/" class="sidebar-link">
+            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+        </a>
+    ` : '';
+
     return `
     <aside class="sidebar">
         <div class="sidebar-brand">
@@ -73,12 +92,11 @@ function generateSidebarHTML() {
 
         <div class="sidebar-section-label">Sistema</div>
         <nav class="sidebar-nav">
-            <a href="${URLS.admin}" data-key="admin" class="sidebar-link">
-                <i class="bi bi-shield-lock-fill"></i> Administración
-            </a>
+            ${adminMenuHTML}
             <a href="#" class="sidebar-link">
                 <i class="bi bi-gear-fill"></i> Configuración
             </a>
+            ${logoutMenuHTML}
         </nav>
 
         <div class="sidebar-footer">

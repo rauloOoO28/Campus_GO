@@ -2,8 +2,34 @@ from django.shortcuts import render
 from locations.models import Campus, Ubicacion
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.models import User
 from .forms import RegistroForm
 from django.contrib import messages
+
+
+def es_admin_check(user):
+    return user.is_superuser
+
+class PerfilFallback:
+    def __init__(self, nombre_completo, rol_display):
+        self.nombre_completo = nombre_completo
+        self._rol_display = rol_display
+
+    def get_rol_display(self):
+        return self._rol_display
+
+
+def get_user_profile(request):
+    if request.user.is_authenticated:
+        try:
+            return request.user.perfil
+        except Exception:
+            nombre = request.user.get_full_name() or request.user.email or request.user.username
+            rol = "Administrador" if request.user.is_superuser else "Usuario"
+            return PerfilFallback(nombre, rol)
+    return None
+
 
 def registro(request):
     if request.method == "POST":
@@ -26,12 +52,27 @@ def login_view(request):
         email = request.POST.get("email")
         password = request.POST.get("password")
         user = authenticate(request, username=email, password=password)
+        if user is None:
+            try:
+                existing_user = User.objects.get(email__iexact=email)
+                user = authenticate(request, username=existing_user.username, password=password)
+            except User.DoesNotExist:
+                user = None
+
         if user is not None:
             login(request, user)
             return redirect("core:campus")
         else:
             messages.error(request, "Correo o contraseña inválida.")
     return render(request, "core/login.html")
+
+def logout_view(request):
+    logout(request)
+    return redirect("core:login")
+
+def campus_guest_view(request):
+    logout(request)
+    return redirect("core:campus")
 
 # Vista principal (Inicio)
 def home(request):
@@ -41,22 +82,13 @@ def home(request):
 
 # Vista del Mapa
 def map_view(request):
-    perfil = None
-    if request.user.is_authenticated:
-        try:
-            perfil = request.user.perfil
-        except:
-            perfil = None
+    perfil = get_user_profile(request)
     return render(request, 'core/map.html', {'perfil': perfil})
 
 # Vista de Administrador
+@user_passes_test(es_admin_check, login_url='/login/') 
 def admin_view(request):
-    perfil = None
-    if request.user.is_authenticated:
-        try:
-            perfil = request.user.perfil
-        except:
-            perfil = None
+    perfil = get_user_profile(request)
     return render(request, 'core/admin.html', {'perfil': perfil})
 
 # Vista de Campus
@@ -66,12 +98,7 @@ def campus_view(request):
     ESCOM se carga real desde la BD; los otros 3 son demos visuales.
     """
     # Obtener perfil del usuario si está autenticado
-    perfil = None
-    if request.user.is_authenticated:
-        try:
-            perfil = request.user.perfil
-        except:
-            perfil = None
+    perfil = get_user_profile(request)
     
     # Intentar cargar ESCOM desde la BD
     try:
@@ -104,30 +131,15 @@ def campus_view(request):
     })
 
 def qr_view(request):
-    perfil = None
-    if request.user.is_authenticated:
-        try:
-            perfil = request.user.perfil
-        except:
-            perfil = None
+    perfil = get_user_profile(request)
     return render(request, 'core/qr.html', {'perfil': perfil})
 
 def route_view(request):
-    perfil = None
-    if request.user.is_authenticated:
-        try:
-            perfil = request.user.perfil
-        except:
-            perfil = None
+    perfil = get_user_profile(request)
     return render(request, 'core/route.html', {'perfil': perfil})
 
 def detail_view(request):
-    perfil = None
-    if request.user.is_authenticated:
-        try:
-            perfil = request.user.perfil
-        except:
-            perfil = None
+    perfil = get_user_profile(request)
     return render(request, 'core/detail.html', {'perfil': perfil})
 
 
