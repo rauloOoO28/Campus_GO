@@ -92,7 +92,7 @@ def api_ubicaciones_campus(request, codigo_campus):
 
 
 # ============================================================
-# API: CALCULAR RUTA  ⭐ AHORA CON NETWORKX
+# API: CALCULAR RUTA  AHORA CON NETWORKX
 # ============================================================
 def api_calcular_ruta(request):
     """
@@ -128,7 +128,7 @@ def api_calcular_ruta(request):
         }, status=400)
 
     # ============================================================
-    # 🎯 INTENTAR CON NETWORKX (Fase 2)
+    #  INTENTAR CON NETWORKX (Fase 2)
     # ============================================================
     resultado_grafo = calcular_ruta_entre_ubicaciones(
         origen, destino, solo_accesible=solo_accesible
@@ -161,7 +161,7 @@ def api_calcular_ruta(request):
         })
 
     # ============================================================
-    # ⚠️ FALLBACK: línea inteligente (Fase 1)
+    #  FALLBACK: línea inteligente (Fase 1)
     # ============================================================
     # Si llegamos aquí es porque NetworkX falló (no hay grafo aún, no hay nodos
     # vinculados, etc.). Caemos al método anterior para que la app siga funcionando.

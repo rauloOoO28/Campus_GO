@@ -14,6 +14,111 @@
 <link rel="stylesheet" href="{% static 'core/css/layout.css' %}">
 <link rel="stylesheet" href="{% static 'core/css/admin.css' %}">
 <link rel="stylesheet" href="{% static 'core/css/shell.css' %}">
+
+<style>
+/* ============================================
+   AJUSTES MENORES PARA SECCIONES DINÁMICAS
+   ============================================ */
+.admin-tab-content { display: none; }
+.admin-tab-content.active { display: block; }
+
+/* Card para módulos especiales (Rutas) */
+.admin-modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.admin-module-card {
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.admin-module-card:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+}
+
+.admin-module-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(14, 158, 142, 0.12);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.admin-module-icon.purple    { background: rgba(99, 102, 241, 0.12);  color: #6366f1; }
+.admin-module-icon.secondary { background: rgba(232, 114, 28, 0.12);  color: var(--color-secondary); }
+.admin-module-icon.dark      { background: rgba(26, 46, 53, 0.08);    color: var(--color-heading); }
+
+.admin-module-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--color-heading);
+}
+
+.admin-module-desc {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.admin-module-meta {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--color-border);
+    font-size: 12px;
+    color: var(--color-primary);
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Empty state */
+.admin-empty {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--color-text-muted);
+}
+.admin-empty i { font-size: 40px; opacity: 0.4; }
+.admin-empty p { margin-top: 12px; font-weight: 600; font-size: 13px; }
+
+/* Section description */
+.admin-section-header {
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.admin-section-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--color-heading);
+}
+.admin-section-desc {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    margin-top: 2px;
+}
+</style>
 </head>
 <body data-active="admin">
 
@@ -30,7 +135,7 @@
             <div class="topbar-left">
                 <div>
                     <div class="topbar-title">Panel administrativo</div>
-                    <div class="topbar-subtitle">Gestión de campus, ubicaciones y códigos QR</div>
+                    <div class="topbar-subtitle">Gestión de campus, ubicaciones, QRs y rutas</div>
                 </div>
             </div>
             <div class="topbar-search">
@@ -40,17 +145,17 @@
                 </div>
             </div>
             <div class="topbar-actions">
-                <button class="btn-icon"><i class="bi bi-bell-fill"></i></button>
-                <button class="btn-action-primary">
+                <a class="btn-icon" href="/admin/" title="Django Admin"><i class="bi bi-shield-lock-fill"></i></a>
+                <a class="btn-action-primary" href="/admin/locations/ubicacion/add/">
                     <i class="bi bi-plus-lg"></i> Nueva ubicación
-                </button>
+                </a>
             </div>
         </header>
 
         <main class="page-content">
 
             <div class="breadcrumbs">
-                <a href="campus.html">Inicio</a>
+                <a href="{% url 'core:campus' %}">Inicio</a>
                 <span class="separator"><i class="bi bi-chevron-right"></i></span>
                 <span class="current">Panel administrativo</span>
             </div>
@@ -62,17 +167,19 @@
                 </div>
             </div>
 
-            <!-- Stats grid -->
+            <!-- ======================================
+                 STATS GRID (con datos reales)
+                 ====================================== -->
             <div class="admin-stats-grid">
 
                 <div class="admin-stat-card featured">
                     <div class="admin-stat-header">
                         <div class="icon-box"><i class="bi bi-buildings"></i></div>
                         <span class="admin-stat-trend">
-                            <i class="bi bi-arrow-up"></i> +1 este mes
+                            <i class="bi bi-check2-circle"></i> Activos
                         </span>
                     </div>
-                    <div class="admin-stat-value">4</div>
+                    <div class="admin-stat-value">{{ total_campus }}</div>
                     <div class="admin-stat-label">Campus activos</div>
                 </div>
 
@@ -80,10 +187,10 @@
                     <div class="admin-stat-header">
                         <div class="icon-box icon-box-secondary"><i class="bi bi-geo-alt-fill"></i></div>
                         <span class="admin-stat-trend">
-                            <i class="bi bi-arrow-up"></i> +12 esta semana
+                            <i class="bi bi-check2-circle"></i> Registradas
                         </span>
                     </div>
-                    <div class="admin-stat-value">1,020</div>
+                    <div class="admin-stat-value">{{ total_ubicaciones }}</div>
                     <div class="admin-stat-label">Ubicaciones registradas</div>
                 </div>
 
@@ -91,217 +198,380 @@
                     <div class="admin-stat-header">
                         <div class="icon-box icon-box-purple"><i class="bi bi-qr-code"></i></div>
                         <span class="admin-stat-trend">
-                            <i class="bi bi-arrow-up"></i> +8 hoy
+                            <i class="bi bi-eye-fill"></i> {{ total_escaneos }} escaneos
                         </span>
                     </div>
-                    <div class="admin-stat-value">344</div>
+                    <div class="admin-stat-value">{{ total_qrs }}</div>
                     <div class="admin-stat-label">Códigos QR generados</div>
                 </div>
 
                 <div class="admin-stat-card">
                     <div class="admin-stat-header">
                         <div class="icon-box icon-box-dark"><i class="bi bi-people-fill"></i></div>
-                        <span class="admin-stat-trend down">
-                            <i class="bi bi-arrow-down"></i> -3 vs ayer
+                        <span class="admin-stat-trend">
+                            <i class="bi bi-person-check-fill"></i> Activos
                         </span>
                     </div>
-                    <div class="admin-stat-value">2,847</div>
+                    <div class="admin-stat-value">{{ total_usuarios }}</div>
                     <div class="admin-stat-label">Usuarios registrados</div>
                 </div>
 
             </div>
 
-            <!-- Toolbar -->
+            <!-- ======================================
+                 TOOLBAR + TABS
+                 ====================================== -->
             <div class="admin-toolbar">
                 <div class="admin-tabs">
-                    <button class="admin-tab active">Ubicaciones</button>
-                    <button class="admin-tab">Campus</button>
-                    <button class="admin-tab">Códigos QR</button>
-                    <button class="admin-tab">Usuarios</button>
-                    <button class="admin-tab">Auditoría</button>
+                    <button class="admin-tab active" data-tab="ubicaciones">
+                        <i class="bi bi-geo-alt-fill"></i> Ubicaciones
+                    </button>
+                    <button class="admin-tab" data-tab="campus">
+                        <i class="bi bi-building-fill"></i> Campus
+                    </button>
+                    <button class="admin-tab" data-tab="edificios">
+                        <i class="bi bi-buildings"></i> Edificios
+                    </button>
+                    <button class="admin-tab" data-tab="qrs">
+                        <i class="bi bi-qr-code"></i> Códigos QR
+                    </button>
+                    <button class="admin-tab" data-tab="rutas">
+                        <i class="bi bi-signpost-split-fill"></i> Rutas
+                    </button>
+                    <button class="admin-tab" data-tab="usuarios">
+                        <i class="bi bi-people-fill"></i> Usuarios
+                    </button>
                 </div>
                 <div class="admin-toolbar-actions">
-                    <button class="btn-action-secondary">
-                        <i class="bi bi-funnel-fill"></i> Filtros
-                    </button>
-                    <button class="btn-action-secondary">
-                        <i class="bi bi-download"></i> Exportar
-                    </button>
-                    <button class="btn-action-primary">
-                        <i class="bi bi-plus-lg"></i> Crear
-                    </button>
+                    <a class="btn-action-secondary" href="/admin/" title="Django admin completo">
+                        <i class="bi bi-gear-fill"></i> Admin Django
+                    </a>
                 </div>
             </div>
 
-            <!-- Tabla -->
-            <div class="admin-table-card">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Ubicación</th>
-                            <th>Categoría</th>
-                            <th>Edificio</th>
-                            <th>QR</th>
-                            <th>Estado</th>
-                            <th style="text-align: right;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                        <tr>
-                            <td>
-                                <div class="table-row-name">
-                                    <div class="icon-box"><i class="bi bi-cpu-fill"></i></div>
-                                    <div>
-                                        <div class="table-row-name-text">Lab. Cómputo H-201</div>
-                                        <div class="table-row-name-meta">Piso 2 · Capacidad 35</div>
+            <!-- ======================================
+                 TAB: UBICACIONES (visible por defecto)
+                 ====================================== -->
+            <div class="admin-tab-content active" id="tab-ubicaciones">
+                <div class="admin-table-card">
+                    {% if ubicaciones %}
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Ubicación</th>
+                                <th>Categoría</th>
+                                <th>Edificio</th>
+                                <th>QR</th>
+                                <th>Estado</th>
+                                <th style="text-align: right;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in ubicaciones %}
+                            <tr>
+                                <td>
+                                    <div class="table-row-name">
+                                        <div class="icon-box
+                                            {% if u.tipo == 'laboratorio' %}icon-box-purple
+                                            {% elif u.tipo == 'oficina' %}icon-box-dark
+                                            {% elif u.tipo == 'servicio' %}icon-box-secondary
+                                            {% elif u.tipo == 'entrada' %}icon-box-secondary
+                                            {% endif %}">
+                                            {% if u.tipo == 'laboratorio' %}
+                                                <i class="bi bi-cpu-fill"></i>
+                                            {% elif u.tipo == 'oficina' %}
+                                                <i class="bi bi-building-fill"></i>
+                                            {% elif u.tipo == 'entrada' %}
+                                                <i class="bi bi-door-open-fill"></i>
+                                            {% elif u.tipo == 'aula' %}
+                                                <i class="bi bi-mortarboard-fill"></i>
+                                            {% elif u.tipo == 'bano' %}
+                                                <i class="bi bi-droplet-fill"></i>
+                                            {% elif u.tipo == 'servicio' %}
+                                                <i class="bi bi-cup-hot-fill"></i>
+                                            {% else %}
+                                                <i class="bi bi-geo-alt-fill"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <div class="table-row-name-text">{{ u.nombre }}</div>
+                                            <div class="table-row-name-meta">
+                                                {% if u.piso > 0 %}Piso {{ u.piso }}{% endif %}
+                                                {% if u.capacidad %} · Cap. {{ u.capacidad }}{% endif %}
+                                                {% if not u.piso and not u.capacidad %}{{ u.campus.nombre }}{% endif %}
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td><span class="tag">Laboratorio</span></td>
-                            <td>Edificio H</td>
-                            <td><span class="qr-code-cell">QR-0042</span></td>
-                            <td><span class="status-chip confirmed"><i class="bi bi-check-circle-fill"></i> Activo</span></td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="admin-action-btn" title="Ver"><i class="bi bi-eye-fill"></i></button>
-                                    <button class="admin-action-btn" title="Editar"><i class="bi bi-pencil-fill"></i></button>
-                                    <button class="admin-action-btn danger" title="Eliminar"><i class="bi bi-trash-fill"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <div class="table-row-name">
-                                    <div class="icon-box icon-box-purple"><i class="bi bi-book-fill"></i></div>
-                                    <div>
-                                        <div class="table-row-name-text">Biblioteca Central</div>
-                                        <div class="table-row-name-meta">Acceso libre · 24/7</div>
+                                </td>
+                                <td><span class="tag">{{ u.get_tipo_display }}</span></td>
+                                <td>{{ u.edificio.nombre|default:"—" }}</td>
+                                <td>
+                                    {% if u.tiene_qr %}
+                                        <span class="qr-code-cell">{{ u.codigo|truncatechars:14 }}</span>
+                                    {% else %}
+                                        <span style="color: var(--color-text-muted); font-size: 11px;">Sin QR</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if u.activo %}
+                                        <span class="status-chip confirmed">
+                                            <i class="bi bi-check-circle-fill"></i> Activo
+                                        </span>
+                                    {% else %}
+                                        <span class="status-chip pending">
+                                            <i class="bi bi-exclamation-circle-fill"></i> Inactivo
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a class="admin-action-btn" title="Ver detalle público"
+                                           href="{% url 'locations:detalle_publico' u.codigo %}" target="_blank">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </a>
+                                        <a class="admin-action-btn" title="Editar"
+                                           href="/admin/locations/ubicacion/{{ u.id }}/change/">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </a>
+                                        <a class="admin-action-btn danger" title="Eliminar"
+                                           href="/admin/locations/ubicacion/{{ u.id }}/delete/">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </a>
                                     </div>
-                                </div>
-                            </td>
-                            <td><span class="tag tag-secondary">Servicios</span></td>
-                            <td>Edificio L</td>
-                            <td><span class="qr-code-cell">QR-0018</span></td>
-                            <td><span class="status-chip confirmed"><i class="bi bi-check-circle-fill"></i> Activo</span></td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="admin-action-btn" title="Ver"><i class="bi bi-eye-fill"></i></button>
-                                    <button class="admin-action-btn" title="Editar"><i class="bi bi-pencil-fill"></i></button>
-                                    <button class="admin-action-btn danger" title="Eliminar"><i class="bi bi-trash-fill"></i></button>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
 
-                        <tr>
-                            <td>
-                                <div class="table-row-name">
-                                    <div class="icon-box icon-box-secondary"><i class="bi bi-cup-hot-fill"></i></div>
-                                    <div>
-                                        <div class="table-row-name-text">Cafetería Edif. C</div>
-                                        <div class="table-row-name-meta">Planta baja</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="tag tag-secondary">Servicios</span></td>
-                            <td>Edificio C</td>
-                            <td><span class="qr-code-cell">QR-0007</span></td>
-                            <td><span class="status-chip confirmed"><i class="bi bi-check-circle-fill"></i> Activo</span></td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="admin-action-btn" title="Ver"><i class="bi bi-eye-fill"></i></button>
-                                    <button class="admin-action-btn" title="Editar"><i class="bi bi-pencil-fill"></i></button>
-                                    <button class="admin-action-btn danger" title="Eliminar"><i class="bi bi-trash-fill"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <div class="table-row-name">
-                                    <div class="icon-box"><i class="bi bi-mortarboard-fill"></i></div>
-                                    <div>
-                                        <div class="table-row-name-text">Aula H-105</div>
-                                        <div class="table-row-name-meta">Piso 1 · Capacidad 40</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="tag">Aula</span></td>
-                            <td>Edificio H</td>
-                            <td><span class="qr-code-cell">QR-0021</span></td>
-                            <td><span class="status-chip pending"><i class="bi bi-exclamation-circle-fill"></i> En revisión</span></td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="admin-action-btn" title="Ver"><i class="bi bi-eye-fill"></i></button>
-                                    <button class="admin-action-btn" title="Editar"><i class="bi bi-pencil-fill"></i></button>
-                                    <button class="admin-action-btn danger" title="Eliminar"><i class="bi bi-trash-fill"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <div class="table-row-name">
-                                    <div class="icon-box icon-box-dark"><i class="bi bi-building-fill"></i></div>
-                                    <div>
-                                        <div class="table-row-name-text">Oficina Coordinación CBI</div>
-                                        <div class="table-row-name-meta">Piso 3 · Atención al alumno</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="tag tag-dark">Oficina</span></td>
-                            <td>Edificio A</td>
-                            <td><span class="qr-code-cell">QR-0001</span></td>
-                            <td><span class="status-chip confirmed"><i class="bi bi-check-circle-fill"></i> Activo</span></td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="admin-action-btn" title="Ver"><i class="bi bi-eye-fill"></i></button>
-                                    <button class="admin-action-btn" title="Editar"><i class="bi bi-pencil-fill"></i></button>
-                                    <button class="admin-action-btn danger" title="Eliminar"><i class="bi bi-trash-fill"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <div class="table-row-name">
-                                    <div class="icon-box icon-box-purple"><i class="bi bi-cpu-fill"></i></div>
-                                    <div>
-                                        <div class="table-row-name-text">Lab. Redes y Telecomunicaciones</div>
-                                        <div class="table-row-name-meta">Piso 1 · Capacidad 25</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="tag">Laboratorio</span></td>
-                            <td>Edificio T</td>
-                            <td><span class="qr-code-cell">QR-0089</span></td>
-                            <td><span class="status-chip confirmed"><i class="bi bi-check-circle-fill"></i> Activo</span></td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="admin-action-btn" title="Ver"><i class="bi bi-eye-fill"></i></button>
-                                    <button class="admin-action-btn" title="Editar"><i class="bi bi-pencil-fill"></i></button>
-                                    <button class="admin-action-btn danger" title="Eliminar"><i class="bi bi-trash-fill"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-
-                    </tbody>
-                </table>
-
-                <!-- Paginación -->
-                <div class="admin-pagination">
-                    <div class="pagination-info">
-                        Mostrando <strong>1-6</strong> de <strong>240</strong> ubicaciones
+                    <div class="admin-pagination">
+                        <div class="pagination-info">
+                            Mostrando las últimas <strong>{{ ubicaciones|length }}</strong> de
+                            <strong>{{ total_ubicaciones }}</strong> ubicaciones
+                        </div>
+                        <div class="pagination-controls">
+                            <a class="pagination-btn active" href="/admin/locations/ubicacion/">
+                                <i class="bi bi-list"></i> Ver todas
+                            </a>
+                        </div>
                     </div>
-                    <div class="pagination-controls">
-                        <button class="pagination-btn"><i class="bi bi-chevron-left"></i></button>
-                        <button class="pagination-btn active">1</button>
-                        <button class="pagination-btn">2</button>
-                        <button class="pagination-btn">3</button>
-                        <button class="pagination-btn">4</button>
-                        <button class="pagination-btn"><i class="bi bi-chevron-right"></i></button>
+                    {% else %}
+                    <div class="admin-empty">
+                        <i class="bi bi-geo-alt"></i>
+                        <p>Aún no hay ubicaciones registradas.</p>
+                        <a class="btn-action-primary" href="/admin/locations/ubicacion/add/"
+                           style="margin-top: 12px; display: inline-flex;">
+                            <i class="bi bi-plus-lg"></i> Crear la primera
+                        </a>
                     </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- ======================================
+                 TAB: CAMPUS
+                 ====================================== -->
+            <div class="admin-tab-content" id="tab-campus">
+                <div class="admin-section-header">
+                    <div>
+                        <div class="admin-section-title">Campus del sistema</div>
+                        <div class="admin-section-desc">{{ total_campus }} campus activo(s)</div>
+                    </div>
+                </div>
+                <div class="admin-modules-grid">
+                    {% for c in campus_list %}
+                    <a class="admin-module-card" href="/admin/locations/campus/{{ c.id }}/change/">
+                        <div class="admin-module-icon"><i class="bi bi-building-fill"></i></div>
+                        <div class="admin-module-title">{{ c.nombre }}</div>
+                        <div class="admin-module-desc">
+                            {{ c.direccion|default:"Sin dirección registrada" }}
+                        </div>
+                        <div class="admin-module-meta">
+                            <span>{{ c.ubicaciones.count }} ubicaciones</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="admin-empty">
+                        <i class="bi bi-building"></i>
+                        <p>Aún no hay campus registrados.</p>
+                    </div>
+                    {% endfor %}
+
+                    <a class="admin-module-card" href="/admin/locations/campus/add/"
+                       style="border-style: dashed; background: transparent;">
+                        <div class="admin-module-icon secondary"><i class="bi bi-plus-lg"></i></div>
+                        <div class="admin-module-title">Agregar campus</div>
+                        <div class="admin-module-desc">Registra un nuevo campus universitario</div>
+                        <div class="admin-module-meta" style="color: var(--color-secondary);">
+                            <span>Crear nuevo</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ======================================
+                 TAB: EDIFICIOS
+                 ====================================== -->
+            <div class="admin-tab-content" id="tab-edificios">
+                <div class="admin-section-header">
+                    <div>
+                        <div class="admin-section-title">Edificios</div>
+                        <div class="admin-section-desc">{{ total_edificios }} edificio(s) registrado(s)</div>
+                    </div>
+                    <a class="btn-action-primary" href="/admin/locations/edificio/add/">
+                        <i class="bi bi-plus-lg"></i> Nuevo edificio
+                    </a>
+                </div>
+                <div class="admin-modules-grid">
+                    <a class="admin-module-card" href="/admin/locations/edificio/">
+                        <div class="admin-module-icon dark"><i class="bi bi-buildings"></i></div>
+                        <div class="admin-module-title">Gestionar edificios</div>
+                        <div class="admin-module-desc">
+                            CRUD completo de edificios. Editar nombre, código, pisos, descripción.
+                        </div>
+                        <div class="admin-module-meta">
+                            <span>{{ total_edificios }} en la BD</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ======================================
+                 TAB: CÓDIGOS QR
+                 ====================================== -->
+            <div class="admin-tab-content" id="tab-qrs">
+                <div class="admin-section-header">
+                    <div>
+                        <div class="admin-section-title">Códigos QR</div>
+                        <div class="admin-section-desc">
+                            {{ total_qrs }} QR generado(s) · {{ total_escaneos }} escaneos totales
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-modules-grid">
+                    <a class="admin-module-card" href="/admin/locations/codigoqr/">
+                        <div class="admin-module-icon purple"><i class="bi bi-qr-code"></i></div>
+                        <div class="admin-module-title">Códigos QR existentes</div>
+                        <div class="admin-module-desc">
+                            Ver, descargar y monitorear los códigos generados. Estadísticas de escaneos.
+                        </div>
+                        <div class="admin-module-meta">
+                            <span>{{ total_qrs }} QRs · {{ total_escaneos }} escaneos</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+                    </a>
+                    <a class="admin-module-card" href="/admin/locations/ubicacion/">
+                        <div class="admin-module-icon secondary"><i class="bi bi-plus-circle-fill"></i></div>
+                        <div class="admin-module-title">Generar QR nuevo</div>
+                        <div class="admin-module-desc">
+                            Entra al admin de Ubicaciones y usa el botón "Generar QR" en cualquier fila,
+                            o la acción masiva para varias a la vez.
+                        </div>
+                        <div class="admin-module-meta" style="color: var(--color-secondary);">
+                            <span>Ir a ubicaciones</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ======================================
+                  TAB: RUTAS (nueva)
+                 ====================================== -->
+            <div class="admin-tab-content" id="tab-rutas">
+                <div class="admin-section-header">
+                    <div>
+                        <div class="admin-section-title">Sistema de rutas</div>
+                        <div class="admin-section-desc">
+                            {{ total_nodos }} nodos · {{ total_aristas }} conexiones en el grafo
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-modules-grid">
+
+                    <!-- Editor visual -->
+                    {% for c in campus_list %}
+                    <a class="admin-module-card" href="{% url 'locations:admin_editor_grafo' c.codigo %}">
+                        <div class="admin-module-icon"><i class="bi bi-map-fill"></i></div>
+                        <div class="admin-module-title">Editor visual · {{ c.nombre }}</div>
+                        <div class="admin-module-desc">
+                            Diseña la red de pasillos del campus haciendo clic en el mapa.
+                            Crea nodos, conéctalos y NetworkX calcula las rutas más cortas.
+                        </div>
+                        <div class="admin-module-meta">
+                            <span>{{ c.nodos.count }} nodos en {{ c.codigo }}</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+                    </a>
+                    {% endfor %}
+
+                    <!-- Nodos del grafo (CRUD) -->
+                    <a class="admin-module-card" href="/admin/locations/nodografo/">
+                        <div class="admin-module-icon purple"><i class="bi bi-diagram-3-fill"></i></div>
+                        <div class="admin-module-title">Nodos del grafo</div>
+                        <div class="admin-module-desc">
+                            CRUD nativo de nodos: edita coordenadas, tipo, vinculación con ubicaciones.
+                            Útil para ajustes finos manuales.
+                        </div>
+                        <div class="admin-module-meta">
+                            <span>{{ total_nodos }} nodos activos</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <!-- Aristas (CRUD) -->
+                    <a class="admin-module-card" href="/admin/locations/aristagrafo/">
+                        <div class="admin-module-icon secondary"><i class="bi bi-share-fill"></i></div>
+                        <div class="admin-module-title">Conexiones (aristas)</div>
+                        <div class="admin-module-desc">
+                            Las conexiones entre nodos. Define tipo (sendero/escalera), accesibilidad,
+                            si es bidireccional. La distancia se calcula automática.
+                        </div>
+                        <div class="admin-module-meta">
+                            <span>{{ total_aristas }} conexiones</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+
+            <!-- ======================================
+                 TAB: USUARIOS
+                 ====================================== -->
+            <div class="admin-tab-content" id="tab-usuarios">
+                <div class="admin-section-header">
+                    <div>
+                        <div class="admin-section-title">Usuarios del sistema</div>
+                        <div class="admin-section-desc">{{ total_usuarios }} usuario(s) registrado(s)</div>
+                    </div>
+                </div>
+                <div class="admin-modules-grid">
+                    <a class="admin-module-card" href="/admin/auth/user/">
+                        <div class="admin-module-icon dark"><i class="bi bi-people-fill"></i></div>
+                        <div class="admin-module-title">Gestionar usuarios</div>
+                        <div class="admin-module-desc">
+                            CRUD completo de usuarios. Editar permisos, asignar grupos, resetear contraseñas.
+                        </div>
+                        <div class="admin-module-meta">
+                            <span>{{ total_usuarios }} en la BD</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+                    </a>
+                    <a class="admin-module-card" href="/admin/auth/group/">
+                        <div class="admin-module-icon"><i class="bi bi-people"></i></div>
+                        <div class="admin-module-title">Grupos y permisos</div>
+                        <div class="admin-module-desc">
+                            Define roles y permisos por grupo (estudiantes, profesores, administradores).
+                        </div>
+                        <div class="admin-module-meta">
+                            <span>Configurar roles</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+                    </a>
                 </div>
             </div>
 
@@ -313,6 +583,7 @@
 // Pasar datos del usuario autenticado a JavaScript
 window.USER_DATA = {
     is_authenticated: {{ request.user.is_authenticated|lower }},
+    is_admin: {{ request.user.is_superuser|lower }},
     {% if request.user.is_authenticated and perfil %}
         nombre_completo: "{{ perfil.nombre_completo }}",
         rol: "{{ perfil.get_rol_display }}",
@@ -327,6 +598,29 @@ window.USER_DATA = {
 };
 </script>
 
+<!--  Lógica de tabs -->
+<script>
+(function() {
+    'use strict';
+
+    document.querySelectorAll('.admin-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabKey = tab.dataset.tab;
+
+            // Quitar active de todas las tabs y contenidos
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+
+            // Activar la nueva
+            tab.classList.add('active');
+            const contenido = document.getElementById('tab-' + tabKey);
+            if (contenido) contenido.classList.add('active');
+        });
+    });
+})();
+</script>
+
 <script src="{% static 'core/js/shell.js' %}"></script>
+<script src="{% static 'core/js/admin.js' %}"></script>
 </body>
 </html>

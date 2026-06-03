@@ -9,8 +9,9 @@ así que solo los administradores pueden acceder.
 """
 
 from django.urls import path
-from . import views, views_editor
+from . import views, views_editor, api
 
+ 
 app_name = 'locations'
 
 urlpatterns = [
@@ -50,4 +51,14 @@ urlpatterns = [
     path('grafo/<slug:codigo_campus>/api/arista/<int:arista_id>/eliminar/',
          views_editor.api_eliminar_arista,
          name='admin_editor_eliminar_arista'),
+      # API Admin endpoints
+    path('api/admin/stats/', api.api_stats, name='api_stats'),
+    path('api/admin/ubicaciones/', api.api_ubicaciones, name='api_ubicaciones'),
+    path('api/admin/edificios/', api.api_edificios, name='api_edificios'),
+    path('api/admin/campus/', api.api_campus, name='api_campus'),
+    path('api/admin/ubicaciones/crear/', api.api_ubicaciones_crear, name='api_ubicaciones_crear'),
+    path('api/admin/ubicaciones/<int:ubicacion_id>/editar/', api.api_ubicaciones_editar, name='api_ubicaciones_editar'),
+    path('api/admin/ubicaciones/<int:ubicacion_id>/eliminar/', api.api_ubicaciones_eliminar, name='api_ubicaciones_eliminar'),
 ]
+    
+   

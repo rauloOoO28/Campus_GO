@@ -184,6 +184,7 @@
 // Pasar datos del usuario autenticado a JavaScript
 window.USER_DATA = {
     is_authenticated: {{ request.user.is_authenticated|lower }},
+    is_admin: {{ request.user.is_superuser|lower }},
     {% if request.user.is_authenticated and perfil %}
         nombre_completo: "{{ perfil.nombre_completo }}",
         rol: "{{ perfil.get_rol_display }}",
