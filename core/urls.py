@@ -1,6 +1,6 @@
 
 from django.urls import path
-from . import views
+from . import views, api
 
 # Es buena práctica ponerle un nombre a tu app para referenciar las URLs más fácil después
 app_name = 'core'
@@ -18,4 +18,8 @@ urlpatterns = [
     path('qr/', views.qr_view, name='qr'),
     path('ruta/', views.route_view, name='route'),
     path('detalle/', views.detail_view, name='detail'),
+    
+    # API Admin endpoints
+    path('api/admin/usuarios/stats/', api.api_usuarios_stats, name='api_usuarios_stats'),
+    path('api/admin/usuarios/', api.api_usuarios_listar, name='api_usuarios_listar'),
 ]
