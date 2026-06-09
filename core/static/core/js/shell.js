@@ -43,9 +43,13 @@ const USER_DATA = window.USER_DATA || {
 const API_ENDPOINTS = {
     favoritos: '/api/favoritos/',
     favoritos_guardar: '/api/favoritos/guardar/',
+    favoritos_quitar: '/api/favoritos/quitar/',
     historial: '/api/historial/',
     historial_registrar: '/api/historial/registrar/',
 };
+
+const favoriteCodes = new Set();
+let toastTimer = null;
 
 function getCookie(name) {
     const cookieString = document.cookie || '';
@@ -78,8 +82,52 @@ function requestJSON(url, options = {}) {
     });
 }
 
+function ensureToastElement() {
+    let toast = document.getElementById('app-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'app-toast';
+        toast.className = 'app-toast';
+        toast.innerHTML = `
+            <div class="app-toast-info"><i class="bi bi-bookmark-fill"></i></div>
+            <div>
+                <div class="app-toast-title"></div>
+                <div class="app-toast-message"></div>
+            </div>
+        `;
+        document.body.appendChild(toast);
+    }
+    return toast;
+}
+
+function showToast(title, message, variant = 'success') {
+    const toast = ensureToastElement();
+    const titleNode = toast.querySelector('.app-toast-title');
+    const messageNode = toast.querySelector('.app-toast-message');
+    const iconNode = toast.querySelector('.app-toast-info i');
+
+    toast.classList.remove('success', 'error', 'show');
+    toast.classList.add(variant);
+    titleNode.textContent = title;
+    messageNode.textContent = message;
+    if (iconNode) {
+        iconNode.className = variant === 'error' ? 'bi bi-exclamation-circle-fill' : 'bi bi-bookmark-fill';
+    }
+
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
+
+    if (toastTimer) {
+        clearTimeout(toastTimer);
+    }
+    toastTimer = window.setTimeout(() => {
+        toast.classList.remove('show');
+    }, 2600);
+}
+
 function showGuestNotification(message) {
-    alert(message || 'Estás en sesión de invitado. Debes iniciar o crear una cuenta para usar esta función.');
+    showToast('Sesión de invitado', message || 'Debes iniciar o crear una cuenta para usar esta función.', 'error');
 }
 
 function renderPanelContent(type, items) {
@@ -112,6 +160,9 @@ function renderPanelContent(type, items) {
                     <div class="sidebar-panel-item-title">${item.nombre}</div>
                     <div class="sidebar-panel-item-subtitle">${item.direccion || 'Dirección no disponible'}</div>
                 </div>
+                <button type="button" class="sidebar-panel-item-action" data-action="quitar-favorito" data-campus-codigo="${item.codigo}" aria-label="Quitar favorito">
+                    <i class="bi bi-trash3"></i>
+                </button>
             </div>
         `).join('');
     }
@@ -139,6 +190,51 @@ function renderPanelContent(type, items) {
     return `<div class="sidebar-panel-empty"><p>Selecciona una sección válida.</p></div>`;
 }
 
+function setFavoriteButtonState(codigo, isFavorite) {
+    document.querySelectorAll(`[data-action="guardar-favorito"][data-campus-codigo="${codigo}"]`).forEach(button => {
+        button.classList.toggle('active', isFavorite);
+        button.dataset.favoriteState = isFavorite ? 'saved' : 'unsaved';
+        const icon = button.querySelector('i');
+        if (icon) {
+            icon.className = isFavorite ? 'bi bi-bookmark-fill' : 'bi bi-bookmark';
+        }
+    });
+}
+
+function syncFavoriteButtons(items) {
+    favoriteCodes.clear();
+    (items || []).forEach(item => favoriteCodes.add(item.codigo));
+    document.querySelectorAll('[data-action="guardar-favorito"]').forEach(button => {
+        setFavoriteButtonState(button.dataset.campusCodigo, favoriteCodes.has(button.dataset.campusCodigo));
+    });
+}
+
+function reloadFavoritesPanelIfOpen() {
+    const panel = document.querySelector('.sidebar-panel');
+    const title = panel ? panel.querySelector('.sidebar-panel-title') : null;
+    if (panel && panel.classList.contains('open') && title && title.textContent === 'Favoritos') {
+        openSidebarPanel('favoritos');
+    }
+}
+
+function loadFavoritesState() {
+    if (!USER_DATA.is_authenticated) {
+        updateFavoritesBadge(0);
+        syncFavoriteButtons([]);
+        return;
+    }
+
+    requestJSON(API_ENDPOINTS.favoritos, { method: 'GET' })
+        .then(response => {
+            const items = response.data || [];
+            updateFavoritesBadge(items.length);
+            syncFavoriteButtons(items);
+        })
+        .catch(() => {
+            updateFavoritesBadge(0);
+        });
+}
+
 function openSidebarPanel(type) {
     const overlay = document.querySelector('.sidebar-overlay');
     const panel = document.querySelector('.sidebar-panel');
@@ -164,6 +260,7 @@ function openSidebarPanel(type) {
             body.innerHTML = renderPanelContent(type, response.data || []);
             if (type === 'favoritos') {
                 updateFavoritesBadge((response.data || []).length);
+                syncFavoriteButtons(response.data || []);
             }
         })
         .catch(() => {
@@ -232,27 +329,35 @@ function saveFavorite(codigo, label) {
         method: 'POST',
         body: JSON.stringify({ codigo }),
     })
-        .then(response => {
-            alert(`"${label}" se ha guardado en tus favoritos.`);
-            loadFavoritesCount();
+        .then(() => {
+            setFavoriteButtonState(codigo, true);
+            loadFavoritesState();
+            reloadFavoritesPanelIfOpen();
+            showToast('Favorito guardado', `"${label}" se agregó a tus favoritos.`, 'success');
         })
         .catch(error => {
-            alert(error?.data?.message || 'No se pudo guardar tu favorito.');
+            showToast('No se pudo guardar', error?.data?.message || 'Intenta de nuevo en unos segundos.', 'error');
         });
 }
 
-function loadFavoritesCount() {
+function removeFavorite(codigo, label) {
     if (!USER_DATA.is_authenticated) {
-        updateFavoritesBadge(0);
+        showGuestNotification();
         return;
     }
 
-    requestJSON(API_ENDPOINTS.favoritos, { method: 'GET' })
-        .then(response => {
-            updateFavoritesBadge((response.data || []).length);
+    requestJSON(API_ENDPOINTS.favoritos_quitar, {
+        method: 'POST',
+        body: JSON.stringify({ codigo }),
+    })
+        .then(() => {
+            setFavoriteButtonState(codigo, false);
+            loadFavoritesState();
+            reloadFavoritesPanelIfOpen();
+            showToast('Favorito eliminado', `"${label}" se quitó de tus favoritos.`, 'success');
         })
-        .catch(() => {
-            updateFavoritesBadge(0);
+        .catch(error => {
+            showToast('No se pudo quitar', error?.data?.message || 'Intenta de nuevo en unos segundos.', 'error');
         });
 }
 
@@ -297,14 +402,31 @@ function attachShellHandlers() {
         panelClose.addEventListener('click', closeSidebarPanel);
     }
 
-    document.querySelectorAll('[data-action="guardar-favorito"]').forEach(button => {
-        button.addEventListener('click', event => {
+    document.addEventListener('click', event => {
+        const saveButton = event.target.closest('[data-action="guardar-favorito"]');
+        if (saveButton) {
             event.preventDefault();
             event.stopPropagation();
-            const codigo = button.dataset.campusCodigo;
-            const label = button.dataset.campusNombre || 'Campus';
-            saveFavorite(codigo, label);
-        });
+            const codigo = saveButton.dataset.campusCodigo;
+            const label = saveButton.dataset.campusNombre || 'Campus';
+            const isSaved = saveButton.dataset.favoriteState === 'saved' || saveButton.classList.contains('active');
+            if (isSaved) {
+                removeFavorite(codigo, label);
+            } else {
+                saveFavorite(codigo, label);
+            }
+            return;
+        }
+
+        const removeButton = event.target.closest('[data-action="quitar-favorito"]');
+        if (removeButton) {
+            event.preventDefault();
+            event.stopPropagation();
+            const codigo = removeButton.dataset.campusCodigo;
+            const itemCard = removeButton.closest('.sidebar-panel-item');
+            const label = itemCard ? (itemCard.querySelector('.sidebar-panel-item-title')?.textContent || 'Campus') : 'Campus';
+            removeFavorite(codigo, label);
+        }
     });
 
     document.querySelectorAll('.campus-card-link').forEach(link => {
@@ -433,6 +555,6 @@ function setupPasswordToggles() {
 document.addEventListener('DOMContentLoaded', () => {
     injectShell();
     attachShellHandlers();
-    loadFavoritesCount();
+    loadFavoritesState();
     setupPasswordToggles();
 });

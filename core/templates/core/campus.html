@@ -47,6 +47,120 @@
     text-transform: uppercase;
     backdrop-filter: blur(8px);
 }
+
+.campus-empty-state {
+    display: none;
+    margin-top: 24px;
+    padding: 24px;
+    border: 1px dashed var(--color-border);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    text-align: center;
+}
+
+.campus-empty-state h3 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    color: var(--color-heading);
+}
+
+.campus-empty-state p {
+    margin: 0;
+    color: var(--color-text-muted);
+}
+
+.campus-search-area {
+    position: relative;
+}
+
+.campus-search-dropdown {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 10px);
+    z-index: 40;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+    overflow: hidden;
+    max-height: 320px;
+    overflow-y: auto;
+    display: none;
+}
+
+.campus-search-dropdown.open {
+    display: block;
+}
+
+.campus-search-dropdown-header {
+    padding: 12px 16px 8px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.campus-search-result {
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.18s ease;
+}
+
+.campus-search-result:hover {
+    background: rgba(14, 158, 142, 0.06);
+}
+
+.campus-search-result + .campus-search-result {
+    border-top: 1px solid var(--color-border);
+}
+
+.campus-search-result-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(14, 158, 142, 0.12);
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+.campus-search-result-title {
+    font-weight: 700;
+    color: var(--color-heading);
+    margin-bottom: 2px;
+}
+
+.campus-search-result-subtitle {
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+.campus-search-empty {
+    padding: 18px 16px 20px;
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+.campus-card.flash {
+    animation: campus-flash 1.1s ease;
+}
+
+@keyframes campus-flash {
+    0% { box-shadow: 0 0 0 0 rgba(14, 158, 142, 0.45); }
+    60% { box-shadow: 0 0 0 12px rgba(14, 158, 142, 0.0); }
+    100% { box-shadow: 0 0 0 0 rgba(14, 158, 142, 0.0); }
+}
 </style>
 </head>
 
@@ -68,15 +182,12 @@
                     <div class="topbar-subtitle">Elige el campus donde quieres navegar</div>
                 </div>
             </div>
-            <div class="topbar-search">
+            <div class="topbar-search campus-search-area">
                 <div class="search-bar">
                     <i class="bi bi-search"></i>
-                    <input type="text" placeholder="Buscar campus universitario...">
+                    <input id="campus-search-input" type="text" placeholder="Buscar campus universitario..." autocomplete="off">
                 </div>
-            </div>
-            <div class="topbar-actions">
-                <button class="btn-icon"><i class="bi bi-bell-fill"></i></button>
-                <button class="btn-icon"><i class="bi bi-question-circle-fill"></i></button>
+                <div id="campus-search-dropdown" class="campus-search-dropdown" hidden></div>
             </div>
         </header>
 
@@ -101,16 +212,15 @@
             </div>
 
             <div class="filter-bar">
-                <span class="category-chip active"><i class="bi bi-grid-fill"></i> Todos</span>
-                <span class="category-chip"><i class="bi bi-star-fill"></i> Favoritos</span>
-                <span class="category-chip"><i class="bi bi-clock-history"></i> Recientes</span>
-                <span class="category-chip"><i class="bi bi-geo-alt-fill"></i> Cerca de mí</span>
+                <button type="button" class="category-chip active" data-campus-filter="all"><i class="bi bi-grid-fill"></i> Todos</button>
+                <button type="button" class="category-chip" data-campus-filter="favorites"><i class="bi bi-star-fill"></i> Favoritos</button>
+                <button type="button" class="category-chip" data-campus-filter="recent"><i class="bi bi-clock-history"></i> Recientes</button>
             </div>
 
             <div class="campus-grid">
 
                 <!-- 🟢 ESCOM IPN - REAL desde la BD -->
-                <div class="campus-card selected" data-campus-codigo="escom-ipn">
+                <div class="campus-card selected" data-campus-code="escom-ipn" data-campus-codigo="escom-ipn" data-campus-name="{{ escom.nombre|escape }}" data-campus-location="{{ escom.direccion|default:'Av. Juan de Dios Bátiz, Lindavista'|escape }}" data-campus-searchable="true">
                     <div class="campus-card-image">
                         <span class="campus-card-badge">Tu campus</span>
                         <i class="bi bi-cpu-fill"></i>
@@ -247,7 +357,6 @@
                 </div>
 
             </div>
-
         </main>
     </div>
 </div>
@@ -272,5 +381,220 @@ window.USER_DATA = {
 </script>
 
 <script src="{% static 'core/js/shell.js' %}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('campus-search-input');
+    const dropdown = document.getElementById('campus-search-dropdown');
+    const filterButtons = Array.from(document.querySelectorAll('[data-campus-filter]'));
+    const campusCards = Array.from(document.querySelectorAll('.campus-card[data-campus-searchable="true"]'));
+    const allCards = Array.from(document.querySelectorAll('.campus-card'));
+
+    const state = {
+        filter: 'all',
+        query: '',
+        favorites: new Set(),
+        recent: new Set(),
+        listsReady: false,
+        focused: false,
+    };
+
+    const normalize = value => (value || '')
+        .toString()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+
+    const getCardText = card => normalize([
+        card.dataset.campusName,
+        card.dataset.campusLocation,
+        card.dataset.campusCode,
+        card.textContent,
+    ].join(' '));
+
+    const openDropdown = () => {
+        if (dropdown) {
+            dropdown.hidden = false;
+            dropdown.classList.add('open');
+        }
+    };
+
+    const closeDropdown = () => {
+        if (dropdown) {
+            dropdown.classList.remove('open');
+            dropdown.hidden = true;
+        }
+    };
+
+    const getSourceItems = () => {
+        if (state.filter === 'favorites') {
+            if (!window.USER_DATA?.is_authenticated) return [];
+            return campusCards.filter(card => state.favorites.has(card.dataset.campusCode)).map(card => ({
+                code: card.dataset.campusCode,
+                name: card.dataset.campusName,
+                location: card.dataset.campusLocation,
+                card,
+            }));
+        }
+
+        if (state.filter === 'recent') {
+            if (!window.USER_DATA?.is_authenticated) return [];
+            return campusCards.filter(card => state.recent.has(card.dataset.campusCode)).map(card => ({
+                code: card.dataset.campusCode,
+                name: card.dataset.campusName,
+                location: card.dataset.campusLocation,
+                card,
+            }));
+        }
+
+        return campusCards.map(card => ({
+            code: card.dataset.campusCode,
+            name: card.dataset.campusName,
+            location: card.dataset.campusLocation,
+            card,
+        }));
+    };
+
+    const highlightCard = card => {
+        if (!card) return;
+        card.classList.add('flash');
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        window.setTimeout(() => card.classList.remove('flash'), 1200);
+    };
+
+    const renderDropdown = () => {
+        if (!dropdown) return;
+        const query = normalize(state.query);
+        const sourceItems = getSourceItems();
+        const filteredItems = sourceItems.filter(item => {
+            if (!query) return true;
+            const searchable = normalize([item.name, item.location, item.code].join(' '));
+            return searchable.includes(query);
+        });
+
+        if (!query && state.filter === 'all' && !state.focused) {
+            dropdown.hidden = true;
+            dropdown.classList.remove('open');
+            dropdown.innerHTML = '';
+            return;
+        }
+
+        openDropdown();
+
+        if (!window.USER_DATA?.is_authenticated && (state.filter === 'favorites' || state.filter === 'recent')) {
+            dropdown.innerHTML = `
+                <div class="campus-search-dropdown-header">${state.filter === 'favorites' ? 'Favoritos' : 'Recientes'}</div>
+                <div class="campus-search-empty">Inicia sesión o crea una cuenta para ver esta lista.</div>
+            `;
+            return;
+        }
+
+        const headerLabel = state.filter === 'favorites'
+            ? 'Favoritos'
+            : state.filter === 'recent'
+                ? 'Recientes'
+                : 'Sugerencias';
+
+        if (!filteredItems.length) {
+            dropdown.innerHTML = `
+                <div class="campus-search-dropdown-header">${headerLabel}</div>
+                <div class="campus-search-empty">Sin resultados</div>
+            `;
+            return;
+        }
+
+        dropdown.innerHTML = `
+            <div class="campus-search-dropdown-header">${headerLabel}</div>
+            ${filteredItems.map(item => `
+                <button type="button" class="campus-search-result" data-campus-code="${item.code}">
+                    <span class="campus-search-result-icon"><i class="bi bi-buildings"></i></span>
+                    <span>
+                        <span class="campus-search-result-title">${item.name}</span>
+                        <span class="campus-search-result-subtitle">${item.location || 'Dirección no disponible'}</span>
+                    </span>
+                </button>
+            `).join('')}
+        `;
+    };
+
+    const setActiveFilter = filter => {
+        state.filter = filter;
+        filterButtons.forEach(button => {
+            button.classList.toggle('active', button.dataset.campusFilter === filter);
+        });
+        renderDropdown();
+    };
+
+    const loadLists = () => {
+        if (!window.USER_DATA?.is_authenticated) {
+            state.favorites = new Set();
+            state.recent = new Set();
+            state.listsReady = true;
+            renderDropdown();
+            return;
+        }
+
+        Promise.all([
+            fetch('/api/favoritos/', { credentials: 'same-origin' }).then(response => response.ok ? response.json() : { data: [] }).catch(() => ({ data: [] })),
+            fetch('/api/historial/', { credentials: 'same-origin' }).then(response => response.ok ? response.json() : { data: [] }).catch(() => ({ data: [] })),
+        ]).then(([favoritesResponse, recentResponse]) => {
+            state.favorites = new Set((favoritesResponse.data || []).map(item => item.codigo));
+            state.recent = new Set((recentResponse.data || []).map(item => item.codigo));
+            state.listsReady = true;
+            renderDropdown();
+        });
+    };
+
+    if (searchInput) {
+        searchInput.addEventListener('focus', () => {
+            state.focused = true;
+            renderDropdown();
+        });
+
+        searchInput.addEventListener('input', () => {
+            state.query = searchInput.value;
+            renderDropdown();
+        });
+
+        searchInput.addEventListener('focus', () => {
+            renderDropdown();
+        });
+    }
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            setActiveFilter(button.dataset.campusFilter || 'all');
+        });
+    });
+
+    if (dropdown) {
+        dropdown.addEventListener('click', event => {
+            const result = event.target.closest('.campus-search-result');
+            if (!result) return;
+            const campusCode = result.dataset.campusCode;
+            const card = allCards.find(item => item.dataset.campusCode === campusCode);
+            if (card) {
+                highlightCard(card);
+                const link = card.querySelector('.campus-card-link');
+                if (link) {
+                    link.focus?.();
+                }
+            }
+            closeDropdown();
+        });
+    }
+
+    document.addEventListener('click', event => {
+        const clickedSearch = event.target.closest('.campus-search-area');
+        if (!clickedSearch) {
+            state.focused = false;
+            closeDropdown();
+        }
+    });
+
+    loadLists();
+    renderDropdown();
+});
+</script>
 </body>
 </html>

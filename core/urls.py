@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/admin/usuarios/', api.api_usuarios_listar, name='api_usuarios_listar'),
     path('api/favoritos/', api.api_favoritos_list, name='api_favoritos_list'),
     path('api/favoritos/guardar/', api.api_favoritos_guardar, name='api_favoritos_guardar'),
+    path('api/favoritos/quitar/', api.api_favoritos_quitar, name='api_favoritos_quitar'),
     path('api/historial/', api.api_historial_list, name='api_historial_list'),
     path('api/historial/registrar/', api.api_historial_registrar, name='api_historial_registrar'),
 ]

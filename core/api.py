@@ -134,6 +134,34 @@ def api_favoritos_guardar(request):
     })
 
 
+@require_http_methods(['POST'])
+@auth_json_required
+def api_favoritos_quitar(request):
+    payload = {}
+    if request.content_type and 'application/json' in request.content_type:
+        try:
+            payload = json.loads(request.body.decode('utf-8') or '{}')
+        except json.JSONDecodeError:
+            payload = {}
+    codigo = payload.get('codigo') or payload.get('campus_codigo') or request.POST.get('codigo') or request.POST.get('campus_codigo')
+    if not codigo:
+        return JsonResponse({'status': 'error', 'message': 'Código de campus requerido.'}, status=400)
+
+    campus = get_object_or_404(Campus, codigo=codigo, activo=True)
+    deleted_count, _ = Favorito.objects.filter(user=request.user, campus=campus).delete()
+    return JsonResponse({
+        'status': 'success',
+        'data': {
+            'deleted': deleted_count > 0,
+            'campus': {
+                'codigo': campus.codigo,
+                'nombre': campus.nombre,
+                'direccion': campus.direccion,
+            }
+        }
+    })
+
+
 @require_http_methods(['GET'])
 @auth_json_required
 def api_historial_list(request):
