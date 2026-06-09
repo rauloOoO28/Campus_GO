@@ -22,4 +22,8 @@ urlpatterns = [
     # API Admin endpoints
     path('api/admin/usuarios/stats/', api.api_usuarios_stats, name='api_usuarios_stats'),
     path('api/admin/usuarios/', api.api_usuarios_listar, name='api_usuarios_listar'),
+    path('api/favoritos/', api.api_favoritos_list, name='api_favoritos_list'),
+    path('api/favoritos/guardar/', api.api_favoritos_guardar, name='api_favoritos_guardar'),
+    path('api/historial/', api.api_historial_list, name='api_historial_list'),
+    path('api/historial/registrar/', api.api_historial_registrar, name='api_historial_registrar'),
 ]

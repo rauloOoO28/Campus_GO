@@ -110,10 +110,13 @@
             <div class="campus-grid">
 
                 <!-- 🟢 ESCOM IPN - REAL desde la BD -->
-                <a class="campus-card selected" href="{% url 'core:map' %}">
+                <div class="campus-card selected" data-campus-codigo="escom-ipn">
                     <div class="campus-card-image">
                         <span class="campus-card-badge">Tu campus</span>
                         <i class="bi bi-cpu-fill"></i>
+                        <button type="button" class="campus-card-save" data-action="guardar-favorito" data-campus-codigo="escom-ipn" data-campus-nombre="{{ escom.nombre }}" aria-label="Guardar favorito">
+                            <i class="bi bi-bookmark"></i>
+                        </button>
                     </div>
                     <div>
                         <div class="campus-card-name">{{ escom.nombre }}</div>
@@ -136,10 +139,12 @@
                         </div>
                     </div>
                     <div class="campus-card-action">
-                        <span class="campus-action-text">Explorar campus <i class="bi bi-arrow-right"></i></span>
-                        <i class="bi bi-chevron-right" style="color: var(--color-primary);"></i>
+                        <a class="campus-card-link" href="{% url 'core:map' %}">
+                            <span class="campus-action-text">Explorar campus <i class="bi bi-arrow-right"></i></span>
+                            <i class="bi bi-chevron-right" style="color: var(--color-primary);"></i>
+                        </a>
                     </div>
-                </a>
+                </div>
 
                 <!-- 🔒 UAM Azcapotzalco - PRÓXIMAMENTE -->
                 <div class="campus-card coming-soon">
