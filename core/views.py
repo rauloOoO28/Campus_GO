@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from locations.models import Campus, Ubicacion
+from locations.models import Campus, Ubicacion, Edificio, CodigoQR, NodoGrafo, AristaGrafo
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import user_passes_test
@@ -86,10 +86,59 @@ def map_view(request):
     return render(request, 'core/map.html', {'perfil': perfil})
 
 # Vista de Administrador
-@user_passes_test(es_admin_check, login_url='/login/') 
+# Vista de Administrador
+@user_passes_test(es_admin_check, login_url='/login/')
 def admin_view(request):
+    """
+    Panel administrativo de CampusGo.
+    Solo accesible para superusuarios (validación: es_admin_check).
+
+    Carga conteos reales desde la BD para mostrar en las cards
+    y tabs del panel personalizado.
+    """
     perfil = get_user_profile(request)
-    return render(request, 'core/admin.html', {'perfil': perfil})
+
+    # ============================================================
+    # CONTEOS REALES DESDE LA BD
+    # ============================================================
+    total_campus = Campus.objects.filter(activo=True).count()
+    total_ubicaciones = Ubicacion.objects.filter(activo=True).count()
+    total_edificios = Edificio.objects.count()
+    total_qrs = CodigoQR.objects.count()
+    total_usuarios = User.objects.count()
+    total_nodos = NodoGrafo.objects.filter(activo=True).count()
+    total_aristas = AristaGrafo.objects.filter(activo=True).count()
+    total_escaneos = sum(qr.escaneos for qr in CodigoQR.objects.all())
+
+    # Últimas 10 ubicaciones para la tabla
+    ubicaciones_recientes = (
+        Ubicacion.objects
+        .select_related('campus', 'edificio')
+        .prefetch_related('codigo_qr', 'nodo_grafo')
+        .order_by('-creado')[:10]
+    )
+
+    # Campus activos para los cards del módulo Rutas
+    campus_list = Campus.objects.filter(activo=True).order_by('nombre')
+
+    return render(request, 'core/admin.html', {
+        # Lo que tu compañero ya pasaba (intacto)
+        'perfil': perfil,
+
+        # Conteos nuevos
+        'total_campus':       total_campus,
+        'total_ubicaciones':  total_ubicaciones,
+        'total_edificios':    total_edificios,
+        'total_qrs':          total_qrs,
+        'total_usuarios':     total_usuarios,
+        'total_nodos':        total_nodos,
+        'total_aristas':      total_aristas,
+        'total_escaneos':     total_escaneos,
+
+        # Datos para tabla y módulos
+        'ubicaciones':        ubicaciones_recientes,
+        'campus_list':        campus_list,
+    })
 
 # Vista de Campus
 def campus_view(request):
@@ -142,5 +191,3 @@ def detail_view(request):
     perfil = get_user_profile(request)
     return render(request, 'core/detail.html', {'perfil': perfil})
 
-
-# Puedes seguir agregando def qr_view, def route_view, etc. siguiendo la misma lógica...

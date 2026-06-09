@@ -5,16 +5,82 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CampusGo · Ruta calculada</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin="">
+
 <link rel="stylesheet" href="{% static 'core/css/base.css' %}">
 <link rel="stylesheet" href="{% static 'core/css/components.css' %}">
 <link rel="stylesheet" href="{% static 'core/css/layout.css' %}">
-<link rel="stylesheet" href="{% static 'core/css/route.css' %}">
 <link rel="stylesheet" href="{% static 'core/css/shell.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/route.css' %}">
+
+<style>
+.leaflet-map-route {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-xl);
+    min-height: 500px;
+    z-index: 1;
+}
+.leaflet-container { font-family: var(--font-family); }
+
+/* Pin origen (verde) */
+.pin-origen {
+    background: var(--color-primary);
+    width: 36px; height: 36px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 3px solid white;
+    box-shadow: 0 4px 12px rgba(14, 158, 142, 0.5);
+    display: flex; align-items: center; justify-content: center;
+}
+.pin-origen i { transform: rotate(45deg); color: white; font-size: 16px; }
+
+/* Pin destino (naranja) */
+.pin-destino {
+    background: var(--color-secondary);
+    width: 36px; height: 36px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 3px solid white;
+    box-shadow: 0 4px 12px rgba(232, 114, 28, 0.5);
+    display: flex; align-items: center; justify-content: center;
+}
+.pin-destino i { transform: rotate(45deg); color: white; font-size: 16px; }
+
+/* Estado de carga / error */
+.route-loading {
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 12px;
+    padding: 60px 20px;
+    color: var(--color-text-muted);
+}
+.route-loading i { font-size: 32px; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Banner Fase 1 / Beta */
+.beta-banner {
+    background: rgba(245, 197, 24, 0.12);
+    border: 1.5px solid rgba(245, 197, 24, 0.4);
+    color: #8a6b00;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 12px;
+}
+</style>
 </head>
+
 <body data-active="route">
 
 <div data-mount="proto-nav"></div>
@@ -28,224 +94,54 @@
         <header class="topbar">
             <button class="mobile-menu-toggle"><i class="bi bi-list"></i></button>
             <div class="topbar-left">
-                <button class="btn-icon" onclick="history.back()"><i class="bi bi-arrow-left"></i></button>
+                <a class="btn-icon" href="{% url 'core:map' %}"><i class="bi bi-arrow-left"></i></a>
                 <div>
-                    <div class="topbar-title">Ruta hacia tu destino</div>
-                    <div class="topbar-subtitle">Lab. Cómputo H-201 · 4 min caminando</div>
+                    <div class="topbar-title">Tu ruta</div>
+                    <div class="topbar-subtitle" id="topbar-subtitle">Calculando la mejor ruta...</div>
                 </div>
             </div>
             <div class="topbar-actions">
                 <button class="btn-icon" title="Compartir ruta"><i class="bi bi-share-fill"></i></button>
-                <button class="btn-icon" title="Guardar ruta"><i class="bi bi-bookmark"></i></button>
+                <a class="btn-action-primary" href="{% url 'core:map' %}">
+                    <i class="bi bi-map-fill"></i> Volver al mapa
+                </a>
             </div>
         </header>
 
         <main class="page-content">
 
             <div class="breadcrumbs">
-                <a href="campus.html">Campus</a>
+                <a href="{% url 'core:campus' %}">Campus</a>
                 <span class="separator"><i class="bi bi-chevron-right"></i></span>
-                <a href="map.html">UAM Azcapotzalco</a>
-                <span class="separator"><i class="bi bi-chevron-right"></i></span>
-                <a href="detail.html">Lab. Cómputo H-201</a>
+                <a href="{% url 'core:map' %}">ESCOM IPN</a>
                 <span class="separator"><i class="bi bi-chevron-right"></i></span>
                 <span class="current">Ruta</span>
             </div>
 
             <div class="route-layout">
 
-                <!-- Panel izquierdo con info de ruta -->
-                <div class="route-panel">
-
-                    <!-- Origen y destino -->
-                    <div>
-                        <div class="route-instructions-title">
-                            <span><i class="bi bi-geo-alt-fill text-primary"></i> Recorrido</span>
-                            <button class="route-swap-btn" title="Intercambiar"><i class="bi bi-arrow-down-up"></i></button>
-                        </div>
-
-                        <div class="route-from-to">
-                            <div class="route-point-row">
-                                <div class="route-point-info">
-                                    <div class="route-point-label">Origen</div>
-                                    <div class="route-point-name">Entrada principal · Plaza central</div>
-                                </div>
-                            </div>
-                            <div class="route-point-row destination">
-                                <div class="route-point-info">
-                                    <div class="route-point-label">Destino</div>
-                                    <div class="route-point-name">Lab. de Cómputo H-201</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Stats de ruta -->
-                    <div class="route-stats">
-                        <div class="route-stat-card">
-                            <div class="route-stat-icon"><i class="bi bi-clock-fill"></i></div>
-                            <div class="route-stat-value">4 min</div>
-                            <div class="route-stat-label">Tiempo</div>
-                        </div>
-                        <div class="route-stat-card">
-                            <div class="route-stat-icon"><i class="bi bi-signpost-2-fill"></i></div>
-                            <div class="route-stat-value">320 m</div>
-                            <div class="route-stat-label">Distancia</div>
-                        </div>
-                        <div class="route-stat-card">
-                            <div class="route-stat-icon"><i class="bi bi-shoe-prints"></i></div>
-                            <div class="route-stat-value">~420</div>
-                            <div class="route-stat-label">Pasos</div>
-                        </div>
-                    </div>
-
-                    <!-- Modos de transporte -->
-                    <div>
-                        <div class="route-instructions-title">
-                            <span>Modo de desplazamiento</span>
-                        </div>
-                        <div class="transport-modes">
-                            <button class="transport-mode-btn active">
-                                <i class="bi bi-person-walking"></i>
-                                Caminando
-                            </button>
-                            <button class="transport-mode-btn">
-                                <i class="bi bi-bicycle"></i>
-                                Bicicleta
-                            </button>
-                            <button class="transport-mode-btn">
-                                <i class="bi bi-universal-access"></i>
-                                Accesible
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Pasos -->
-                    <div>
-                        <div class="route-instructions-title">
-                            <span><i class="bi bi-list-ol text-primary"></i> Instrucciones paso a paso</span>
-                        </div>
-                        <div class="route-steps">
-                            <div class="instruction-step">
-                                <div class="step-number">1</div>
-                                <div class="step-content">
-                                    <div class="step-text">Camina hacia el norte por el sendero principal desde la entrada.</div>
-                                    <div class="step-distance">
-                                        <i class="bi bi-arrow-up"></i> 120 m · 1.5 min
-                                    </div>
-                                </div>
-                                <div class="step-icon"><i class="bi bi-arrow-up"></i></div>
-                            </div>
-
-                            <div class="instruction-step">
-                                <div class="step-number">2</div>
-                                <div class="step-content">
-                                    <div class="step-text">Gira a la derecha al llegar a la plaza central, frente a la cafetería.</div>
-                                    <div class="step-distance">
-                                        <i class="bi bi-arrow-right"></i> 80 m · 1 min
-                                    </div>
-                                </div>
-                                <div class="step-icon"><i class="bi bi-arrow-right"></i></div>
-                            </div>
-
-                            <div class="instruction-step">
-                                <div class="step-number">3</div>
-                                <div class="step-content">
-                                    <div class="step-text">Entra al Edificio H y sube las escaleras hasta el piso 2.</div>
-                                    <div class="step-distance">
-                                        <i class="bi bi-stairs"></i> 80 m · 1 min
-                                    </div>
-                                </div>
-                                <div class="step-icon"><i class="bi bi-stairs"></i></div>
-                            </div>
-
-                            <div class="instruction-step">
-                                <div class="step-number">4</div>
-                                <div class="step-content">
-                                    <div class="step-text">El laboratorio H-201 está al final del pasillo, a tu izquierda.</div>
-                                    <div class="step-distance">
-                                        <i class="bi bi-flag-fill"></i> 40 m · 30 seg
-                                    </div>
-                                </div>
-                                <div class="step-icon"><i class="bi bi-flag-fill"></i></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Acción -->
-                    <div class="route-action">
-                        <button class="btn-action-primary" style="width:100%; justify-content:center; padding:14px; font-size:14px;">
-                            <i class="bi bi-play-fill"></i> Iniciar navegación guiada
-                        </button>
+                <!-- Panel izquierdo: info de la ruta -->
+                <div class="route-panel" id="route-panel">
+                    <div class="route-loading">
+                        <i class="bi bi-arrow-clockwise" style="animation: spin 1s linear infinite;"></i>
+                        <p style="font-size: 13px; font-weight: 600;">Calculando ruta...</p>
                     </div>
                 </div>
 
-                <!-- Mapa con la ruta -->
+                <!-- Mapa Leaflet con la ruta -->
                 <div class="route-map">
-
-                    <svg class="map-svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
-                        <rect width="800" height="600" fill="#d4e8e3"/>
-
-                        <!-- Áreas verdes -->
-                        <rect x="40" y="40" width="180" height="100" rx="8" fill="#a8d4c4" opacity="0.6"/>
-                        <rect x="580" y="450" width="160" height="100" rx="8" fill="#a8d4c4" opacity="0.6"/>
-
-                        <!-- Calles -->
-                        <line x1="0" y1="180" x2="800" y2="180" stroke="#fff" stroke-width="18"/>
-                        <line x1="0" y1="400" x2="800" y2="400" stroke="#fff" stroke-width="18"/>
-                        <line x1="400" y1="0" x2="400" y2="600" stroke="#fff" stroke-width="18"/>
-                        <line x1="180" y1="0" x2="180" y2="600" stroke="#fff" stroke-width="10" opacity="0.7"/>
-                        <line x1="620" y1="0" x2="620" y2="600" stroke="#fff" stroke-width="10" opacity="0.7"/>
-
-                        <!-- Edificios -->
-                        <rect x="220" y="200" width="140" height="100" rx="4" fill="#1a2e35" opacity="0.85"/>
-                        <text x="290" y="255" fill="white" font-size="14" font-weight="bold" text-anchor="middle" font-family="Manrope">EDIF. H</text>
-
-                        <rect x="440" y="200" width="140" height="100" rx="4" fill="#1a2e35" opacity="0.7"/>
-                        <text x="510" y="255" fill="white" font-size="14" font-weight="bold" text-anchor="middle" font-family="Manrope">EDIF. L</text>
-
-                        <rect x="220" y="420" width="140" height="100" rx="4" fill="#1a2e35" opacity="0.8"/>
-                        <text x="290" y="475" fill="white" font-size="14" font-weight="bold" text-anchor="middle" font-family="Manrope">EDIF. T</text>
-
-                        <rect x="440" y="420" width="140" height="100" rx="4" fill="#1a2e35" opacity="0.75"/>
-                        <text x="510" y="475" fill="white" font-size="14" font-weight="bold" text-anchor="middle" font-family="Manrope">EDIF. A</text>
-
-                        <!-- Línea de ruta -->
-                        <path d="M 160 540 L 400 540 L 400 320 L 290 320 L 290 250"
-                              class="route-line"/>
-                        <path d="M 160 540 L 400 540 L 400 320 L 290 320 L 290 250"
-                              class="route-line-dash"/>
-
-                        <!-- Puntos de inflexión -->
-                        <circle cx="400" cy="540" r="6" fill="#fff" stroke="#0E9E8E" stroke-width="3"/>
-                        <circle cx="400" cy="320" r="6" fill="#fff" stroke="#0E9E8E" stroke-width="3"/>
-                        <circle cx="290" cy="320" r="6" fill="#fff" stroke="#0E9E8E" stroke-width="3"/>
-                    </svg>
-
-                    <!-- Controles -->
-                    <div class="map-controls">
-                        <button class="map-control-btn" title="Acercar"><i class="bi bi-plus-lg"></i></button>
-                        <button class="map-control-btn" title="Alejar"><i class="bi bi-dash-lg"></i></button>
-                        <button class="map-control-btn" title="Mi ubicación"><i class="bi bi-cursor-fill"></i></button>
-                    </div>
-
-                    <!-- Marker usuario (origen) -->
-                    <div class="pin-marker-user" style="left: 20%; top: 90%;"></div>
-
-                    <!-- Pin de destino -->
-                    <div class="map-pin" style="left: 36.25%; top: 42%;">
-                        <div class="pin-bubble secondary">
-                            <i class="bi bi-flag-fill"></i> Destino
-                        </div>
-                    </div>
-
+                    <div id="leaflet-map" class="leaflet-map-route"></div>
                 </div>
+
             </div>
 
         </main>
     </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
 <script>
 // Pasar datos del usuario autenticado a JavaScript
 window.USER_DATA = {
@@ -266,5 +162,272 @@ window.USER_DATA = {
 </script>
 
 <script src="{% static 'core/js/shell.js' %}"></script>
+
+<script>
+(function() {
+    'use strict';
+
+    const RUTA_API   = '/api/ruta/';
+    const MAPA_URL   = `{% url 'core:map' %}`;
+
+    // Leer parámetros ?desde=X&hasta=Y de la URL
+    const params = new URLSearchParams(window.location.search);
+    const codigoDesde = params.get('desde');
+    const codigoHasta = params.get('hasta');
+
+    // Si no hay parámetros válidos, redirigir al mapa
+    if (!codigoDesde || !codigoHasta) {
+        mostrarError(
+            'No se especificaron origen y destino.',
+            'Vuelve al mapa y selecciona un punto de partida usando QR.',
+            true
+        );
+        return;
+    }
+
+    // ============================================================
+    // ÍCONOS
+    // ============================================================
+    const ICONO_ORIGEN = L.divIcon({
+        className: '',
+        html: '<div class="pin-origen"><i class="bi bi-geo-alt-fill"></i></div>',
+        iconSize: [36, 36],
+        iconAnchor: [18, 36],
+        popupAnchor: [0, -36],
+    });
+
+    const ICONO_DESTINO = L.divIcon({
+        className: '',
+        html: '<div class="pin-destino"><i class="bi bi-flag-fill"></i></div>',
+        iconSize: [36, 36],
+        iconAnchor: [18, 36],
+        popupAnchor: [0, -36],
+    });
+
+    // ============================================================
+    // MAPA
+    // ============================================================
+    let mapa;
+    function iniciarMapa(centro, zoom = 17) {
+        mapa = L.map('leaflet-map', { zoomControl: false }).setView(centro, zoom);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19,
+        }).addTo(mapa);
+        L.control.zoom({ position: 'topright' }).addTo(mapa);
+    }
+
+    // ============================================================
+    // RENDER DEL PANEL LATERAL
+    // ============================================================
+    function renderizarPanel(data) {
+        const panel = document.getElementById('route-panel');
+        const { origen, destino, stats, instrucciones, metodo } = data;
+
+        const esBeta = metodo === 'linea_inteligente';
+
+        panel.innerHTML = `
+            <div class="route-from-to">
+                <div class="route-point-row">
+                    <div class="route-point-info">
+                        <div class="route-point-label">Origen</div>
+                        <div class="route-point-name">${origen.nombre}</div>
+                    </div>
+                </div>
+                <div class="route-point-row destination">
+                    <div class="route-point-info">
+                        <div class="route-point-label">Destino</div>
+                        <div class="route-point-name">${destino.nombre}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="route-stats">
+                <div class="route-stat-card">
+                    <div class="route-stat-icon"><i class="bi bi-clock-fill"></i></div>
+                    <div class="route-stat-value">${stats.tiempo_min} min</div>
+                    <div class="route-stat-label">Tiempo</div>
+                </div>
+                <div class="route-stat-card">
+                    <div class="route-stat-icon"><i class="bi bi-signpost-2-fill"></i></div>
+                    <div class="route-stat-value">${stats.distancia_m} m</div>
+                    <div class="route-stat-label">Distancia</div>
+                </div>
+                <div class="route-stat-card">
+                    <div class="route-stat-icon"><i class="bi bi-shoe-prints"></i></div>
+                    <div class="route-stat-value">~${stats.pasos}</div>
+                    <div class="route-stat-label">Pasos</div>
+                </div>
+            </div>
+
+            <div class="transport-modes">
+                <button class="transport-mode-btn active">
+                    <i class="bi bi-person-walking"></i>
+                    Caminando
+                </button>
+                <button class="transport-mode-btn" disabled title="Próximamente">
+                    <i class="bi bi-bicycle"></i>
+                    Bicicleta
+                </button>
+                <button class="transport-mode-btn" disabled title="Próximamente">
+                    <i class="bi bi-universal-access"></i>
+                    Accesible
+                </button>
+            </div>
+
+            <div class="route-instructions-title">
+                <span><i class="bi bi-list-ol text-primary"></i> Instrucciones</span>
+            </div>
+            <div class="route-steps">
+                ${instrucciones.map(paso => `
+                    <div class="instruction-step">
+                        <div class="step-number">${paso.paso}</div>
+                        <div class="step-content">
+                            <div class="step-text">${paso.texto}</div>
+                            ${paso.distancia ? `
+                                <div class="step-distance">
+                                    <i class="bi bi-arrow-right"></i> ${paso.distancia}
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="step-icon"><i class="bi ${paso.icono}"></i></div>
+                    </div>
+                `).join('')}
+            </div>
+
+            ${esBeta ? `
+                <div class="beta-banner">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <span>Ruta aproximada. La versión final usará el grafo de pasillos del campus.</span>
+                </div>
+            ` : ''}
+
+            <div class="route-action">
+                <button class="btn-action-primary" style="width:100%; justify-content:center; padding:14px; font-size:14px;">
+                    <i class="bi bi-play-fill"></i> Iniciar navegación guiada
+                </button>
+            </div>
+        `;
+    }
+
+    // ============================================================
+    // RENDER DE LA RUTA EN EL MAPA
+    // ============================================================
+    function renderizarRutaEnMapa(data) {
+        const { origen, destino, ruta } = data;
+
+        // Centrar el mapa entre origen y destino
+        const centroLat = (origen.lat + destino.lat) / 2;
+        const centroLng = (origen.lng + destino.lng) / 2;
+        iniciarMapa([centroLat, centroLng], 18);
+
+        // Pin origen
+        const marcadorOrigen = L.marker([origen.lat, origen.lng], { icon: ICONO_ORIGEN });
+        marcadorOrigen.bindPopup(`
+            <div class="popup-title">📍 Origen</div>
+            <div class="popup-meta">${origen.nombre}</div>
+        `).addTo(mapa);
+
+        // Pin destino
+        const marcadorDestino = L.marker([destino.lat, destino.lng], { icon: ICONO_DESTINO });
+        marcadorDestino.bindPopup(`
+            <div class="popup-title">🚩 Destino</div>
+            <div class="popup-meta">${destino.nombre}</div>
+        `).addTo(mapa);
+
+        // Línea de la ruta
+        const polyline = L.polyline(ruta, {
+            color: '#0E9E8E',
+            weight: 6,
+            opacity: 0.9,
+            lineCap: 'round',
+            lineJoin: 'round',
+        }).addTo(mapa);
+
+        // Línea blanca punteada encima (efecto "ruta animada")
+        L.polyline(ruta, {
+            color: '#ffffff',
+            weight: 2,
+            opacity: 1,
+            dashArray: '8, 10',
+            lineCap: 'round',
+        }).addTo(mapa);
+
+        // Ajustar zoom para que se vean ambos puntos
+        const bounds = polyline.getBounds();
+        mapa.fitBounds(bounds, { padding: [80, 80] });
+
+        // Abrir popup del origen después del fit
+        setTimeout(() => marcadorOrigen.openPopup(), 600);
+    }
+
+    // ============================================================
+    // ERROR HANDLER
+    // ============================================================
+    function mostrarError(titulo, mensaje, mostrarBotonMapa = false) {
+        const panel = document.getElementById('route-panel');
+        panel.innerHTML = `
+            <div style="padding: 40px 20px; text-align: center;">
+                <div style="font-size: 48px; color: var(--color-danger); margin-bottom: 12px;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div style="font-size: 16px; font-weight: 800; color: var(--color-heading); margin-bottom: 8px;">
+                    ${titulo}
+                </div>
+                <p style="font-size: 13px; color: var(--color-text-muted); font-weight: 600; margin-bottom: 20px;">
+                    ${mensaje}
+                </p>
+                ${mostrarBotonMapa ? `
+                    <a href="${MAPA_URL}" class="btn-action-primary" style="justify-content:center;">
+                        <i class="bi bi-map-fill"></i> Ir al mapa
+                    </a>
+                ` : ''}
+            </div>
+        `;
+
+        document.getElementById('leaflet-map').innerHTML = `
+            <div class="route-loading">
+                <i class="bi bi-map" style="font-size: 48px; opacity: 0.3;"></i>
+                <p style="font-size: 13px; font-weight: 600;">Mapa no disponible</p>
+            </div>
+        `;
+    }
+
+    // ============================================================
+    // CARGAR RUTA
+    // ============================================================
+    async function cargarRuta() {
+        try {
+            const url = `${RUTA_API}?desde=${codigoDesde}&hasta=${codigoHasta}`;
+            const respuesta = await fetch(url);
+
+            if (!respuesta.ok) {
+                const error = await respuesta.json().catch(() => ({}));
+                throw new Error(error.error || 'Error al calcular la ruta');
+            }
+
+            const data = await respuesta.json();
+
+            // Actualizar subtitle
+            document.getElementById('topbar-subtitle').textContent =
+                `${data.origen.nombre} → ${data.destino.nombre}`;
+
+            renderizarPanel(data);
+            renderizarRutaEnMapa(data);
+
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarError(
+                'No pudimos calcular la ruta',
+                error.message || 'Intenta de nuevo desde el mapa.',
+                true
+            );
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarRuta);
+})();
+</script>
+
 </body>
 </html>
