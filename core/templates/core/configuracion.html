@@ -1,0 +1,355 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusGo · Configuración</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="{% static 'core/css/base.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/components.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/layout.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/shell.css' %}">
+
+<style>
+body {
+    margin: 0;
+    font-family: var(--font-family);
+    background: linear-gradient(180deg, #f8fbfb 0%, #f5f7f9 100%);
+}
+
+.settings-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr);
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.settings-panel,
+.settings-aside {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 24px;
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+}
+
+.settings-panel {
+    padding: 28px;
+}
+
+.settings-hero h1 {
+    margin: 0 0 8px;
+    font-size: clamp(28px, 4vw, 38px);
+    color: var(--color-heading);
+}
+
+.settings-hero p {
+    margin: 0;
+    color: var(--color-text-muted);
+}
+
+.settings-grid {
+    display: grid;
+    gap: 18px;
+    margin-top: 24px;
+}
+
+.settings-card {
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: 20px;
+    background: #fff;
+}
+
+.settings-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.settings-card-title {
+    margin: 0;
+    font-size: 18px;
+    color: var(--color-heading);
+}
+
+.settings-card-subtitle {
+    margin: 4px 0 0;
+    color: var(--color-text-muted);
+    font-size: 13px;
+}
+
+.settings-form {
+    display: grid;
+    gap: 14px;
+}
+
+.settings-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.settings-form-group {
+    display: grid;
+    gap: 8px;
+}
+
+.settings-form-group label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-heading);
+}
+
+.settings-form-group input,
+.settings-form-group select {
+    width: 100%;
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    font: inherit;
+    outline: none;
+    background: #fff;
+}
+
+.settings-form-group input:focus,
+.settings-form-group select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(14, 158, 142, 0.12);
+}
+
+.settings-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.settings-button {
+    border: none;
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-button.primary {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.settings-button.secondary {
+    background: #eff6f7;
+    color: var(--color-heading);
+}
+
+.settings-button.danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.settings-aside {
+    padding: 24px;
+}
+
+.settings-summary {
+    display: grid;
+    gap: 16px;
+}
+
+.summary-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(14, 158, 142, 0.1);
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+.summary-list {
+    display: grid;
+    gap: 12px;
+}
+
+.summary-item {
+    padding: 14px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+}
+
+.summary-item strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--color-heading);
+}
+
+@media (max-width: 900px) {
+    .settings-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+<body data-active="config">
+<div data-mount="proto-nav"></div>
+<div class="app-shell">
+    <div data-mount="sidebar"></div>
+    <div class="main-wrapper">
+        <main class="page-content">
+            <div class="settings-shell">
+                <section class="settings-panel">
+                    <div class="settings-hero">
+                        <h1>Configuración</h1>
+                        <p>Edita tu perfil, cambia tu correo de acceso y limpia tu historial o favoritos cuando lo necesites.</p>
+                    </div>
+
+                    {% if messages %}
+                        <div class="login-form-messages" style="margin-top: 20px;">
+                            {% for message in messages %}
+                                <div class="message {{ message.tags }}">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="settings-grid">
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <div>
+                                    <h2 class="settings-card-title">Editar perfil</h2>
+                                    <p class="settings-card-subtitle">Cambiar el correo también actualiza tu acceso para iniciar sesión.</p>
+                                </div>
+                            </div>
+                            <form class="settings-form" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_profile">
+                                <div class="settings-form-grid">
+                                    <div class="settings-form-group">
+                                        <label for="id_nombre_completo">{{ form.nombre_completo.label }}</label>
+                                        {{ form.nombre_completo }}
+                                    </div>
+                                    <div class="settings-form-group">
+                                        <label for="id_email">{{ form.email.label }}</label>
+                                        {{ form.email }}
+                                    </div>
+                                </div>
+                                <div class="settings-form-group">
+                                    <label for="id_rol">{{ form.rol.label }}</label>
+                                    {{ form.rol }}
+                                </div>
+                                {% if form.errors %}
+                                    <div class="login-form-messages">
+                                        {% for field, errors in form.errors.items %}
+                                            {% for error in errors %}
+                                                <div class="message error">{{ error }}</div>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="settings-actions">
+                                    <button type="submit" class="settings-button primary"><i class="bi bi-save2"></i> Guardar cambios</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <div>
+                                    <h2 class="settings-card-title">Datos de cuenta</h2>
+                                    <p class="settings-card-subtitle">Tus favoritos e historial están ligados a tu usuario actual.</p>
+                                </div>
+                            </div>
+                            <div class="summary-list">
+                                <div class="summary-item">
+                                    <strong>Nombre</strong>
+                                    <span>{{ perfil.nombre_completo|default:request.user.username }}</span>
+                                </div>
+                                <div class="summary-item">
+                                    <strong>Correo</strong>
+                                    <span>{{ request.user.email|default:request.user.username }}</span>
+                                </div>
+                                <div class="summary-item">
+                                    <strong>Rol</strong>
+                                    <span>{{ perfil.get_rol_display|default:"Usuario" }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <div>
+                                    <h2 class="settings-card-title">Datos guardados</h2>
+                                    <p class="settings-card-subtitle">Haz limpieza rápida con confirmación antes de borrar.</p>
+                                </div>
+                            </div>
+                            <div class="settings-actions">
+                                <form method="post" onsubmit="return confirm('¿Seguro que quieres eliminar todo tu historial?');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="clear_history">
+                                    <button type="submit" class="settings-button secondary"><i class="bi bi-clock-history"></i> Limpiar historial</button>
+                                </form>
+                                <form method="post" onsubmit="return confirm('¿Seguro que quieres eliminar todos tus favoritos?');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="clear_favorites">
+                                    <button type="submit" class="settings-button danger"><i class="bi bi-star-fill"></i> Limpiar favoritos</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <aside class="settings-aside">
+                    <div class="settings-summary">
+                        <div class="summary-badge"><i class="bi bi-gear-fill"></i> Tu panel</div>
+                        <div class="summary-item">
+                            <strong>Cuenta</strong>
+                            <span>Si actualizas tu correo, también podrás iniciar sesión con ese nuevo correo.</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Historial</strong>
+                            <span>Se borra por completo y se volverá a llenar conforme visites campus.</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Favoritos</strong>
+                            <span>Se eliminan todos de una sola vez y puedes volver a guardarlos después.</span>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+window.USER_DATA = {
+    is_authenticated: {{ request.user.is_authenticated|lower }},
+    is_admin: {{ request.user.is_superuser|lower }},
+    nombre_completo: "{% if request.user.is_authenticated and perfil %}{{ perfil.nombre_completo|escapejs }}{% else %}Invitado{% endif %}",
+    rol: "{% if request.user.is_authenticated and perfil %}{{ perfil.get_rol_display|escapejs }}{% else %}Invitado{% endif %}",
+    email: "{{ request.user.email|escapejs }}",
+    initials: "{% if request.user.is_authenticated and perfil %}{{ perfil.nombre_completo|truncatewords:2|join:''|slice:':2'|upper }}{% else %}IV{% endif %}"
+};
+</script>
+<script src="{% static 'core/js/shell.js' %}"></script>
+</body>
+</html>

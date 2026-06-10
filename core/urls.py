@@ -18,6 +18,7 @@ urlpatterns = [
     path('qr/', views.qr_view, name='qr'),
     path('ruta/', views.route_view, name='route'),
     path('detalle/', views.detail_view, name='detail'),
+    path('configuracion/', views.configuracion_view, name='configuracion'),
     
     # API Admin endpoints
     path('api/admin/usuarios/stats/', api.api_usuarios_stats, name='api_usuarios_stats'),

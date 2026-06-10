@@ -20,7 +20,9 @@ const URLS = {
     detail: '/detalle/',
     route:  '/ruta/',
     qr:     '/qr/',
-    admin:  '/admin-panel/'
+    config: '/configuracion/',
+    admin:  '/admin-panel/',
+    config: '/configuracion/'
 };
 
 const PROTO_NAV_HTML = `
@@ -500,7 +502,7 @@ function generateSidebarHTML() {
         <div class="sidebar-section-label">Sistema</div>
         <nav class="sidebar-nav">
             ${adminMenuHTML}
-            <a href="#" class="sidebar-link">
+           <a href="${URLS.config}" data-key="config" class="sidebar-link">
                 <i class="bi bi-gear-fill"></i> Configuración
             </a>
             ${logoutMenuHTML}

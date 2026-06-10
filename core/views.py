@@ -2,10 +2,11 @@ from django.shortcuts import render
 from locations.models import Campus, Ubicacion, Edificio, CodigoQR, NodoGrafo, AristaGrafo
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.models import User
-from .forms import RegistroForm
+from .forms import RegistroForm, PerfilUpdateForm
 from django.contrib import messages
+from .models import Favorito, Historial
 
 
 def es_admin_check(user):
@@ -190,4 +191,36 @@ def route_view(request):
 def detail_view(request):
     perfil = get_user_profile(request)
     return render(request, 'core/detail.html', {'perfil': perfil})
+
+
+@login_required(login_url='/login/')
+def configuracion_view(request):
+    perfil = get_user_profile(request)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'update_profile':
+            form = PerfilUpdateForm(request.POST, user=request.user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Tu perfil se actualizó correctamente.')
+                return redirect('core:configuracion')
+            messages.error(request, 'Revisa los campos del formulario.')
+        elif action == 'clear_history':
+            Historial.objects.filter(user=request.user).delete()
+            messages.success(request, 'Tu historial fue eliminado.')
+            return redirect('core:configuracion')
+        elif action == 'clear_favorites':
+            Favorito.objects.filter(user=request.user).delete()
+            messages.success(request, 'Tus favoritos fueron eliminados.')
+            return redirect('core:configuracion')
+        else:
+            messages.error(request, 'Acción no reconocida.')
+
+    form = PerfilUpdateForm(user=request.user)
+    return render(request, 'core/configuracion.html', {
+        'perfil': perfil,
+        'form': form,
+    })
 
