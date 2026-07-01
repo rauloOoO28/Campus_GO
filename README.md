@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 
+=======
+Link to visit our site, currently visible on tablets and computers:
+https://campus-go-1.onrender.com/
+We continue working.........
+>>>>>>> 1ba5fc2597c2106be5252ab7fe268ca49f1ac977
 
 ## 📖 Description
 
